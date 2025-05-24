@@ -7,7 +7,7 @@ const FormCreateArticulo = () => {
 
     const initialValues = {
         nombreArticulo: '',
-        codigoArticulo: '',
+        //codigoArticulo: '',
         descripcion: '',
         stockActualArticulo: '',
         stockSeguridadArticulo: ''
@@ -15,7 +15,7 @@ const FormCreateArticulo = () => {
 
     const validationSchema= Yup.object().shape({
         nombreArticulo: Yup.string().required('El campo es obligatorio'),
-        codigoArticulo: Yup.number().required('Requerido'),
+        //codigoArticulo: Yup.number().required('Requerido'),
         descripcion: Yup.string()
                         .max(150, 'Descripcion demasiada larga'),
         stockActualArticulo: Yup.number()
@@ -31,7 +31,24 @@ const FormCreateArticulo = () => {
         <Formik
             initialValues={initialValues}
             validationSchema={validationSchema}
-            onSubmit={ (values) => {
+            onSubmit={ async (values,  { resetForm, setSubmitting }) => {
+                try {
+                    const response = await fetch("http://localhost:8080/api/articulos", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(values)
+                    });
+
+                    if (!response.ok) throw new Error("Fallo al guardar");
+
+                    alert("Artículo guardado exitosamente");
+                } catch (error) {
+                    alert("Error al guardar el artículo");
+                } finally {
+                    setSubmitting(false);
+                }
                 console.log(values);
             }}
             >
@@ -43,9 +60,9 @@ const FormCreateArticulo = () => {
                         <ErrorMessage name="nombreArticulo" component="div" className="text-danger"  
                         //vemos si hay errores en el campo 
                         />
-                        <label htmlFor= 'codigoArticulo'>Codigo</label>
+                        {/*<label htmlFor= 'codigoArticulo'>Codigo</label>
                         <Field id= 'codigoArticulo' type= 'number' placeholder='Codigo' name='codigoArticulo'/>
-                        <ErrorMessage name="codigoArticulo" component="div" className="text-danger"/> 
+                        <ErrorMessage name="codigoArticulo" component="div" className="text-danger"/> */}
                         <label htmlFor= 'descripcion'>Descripcion</label>
                         <Field id= 'descripcion' type= 'text' placeholder='descripcion' name='descripcion'/>
                         <ErrorMessage name=" descripcion" component="div" className="text-danger"  /> 
