@@ -1,11 +1,11 @@
 import React from "react";
 
-import FormCreateArticulo from "../components/Formulario/FormCreateArticulo";
+import FormCreateArticulo from "../Formulario/FormCreateArticulo";
 
 const CreateArticulos = () => {
     return (
     <div>
-        <h1>FORMULARIOS</h1>
+        <h1 style={{textAlign: 'center'}}>Cargar nuevo articulo</h1>
         <FormCreateArticulo></FormCreateArticulo>
     </div>
     );
