@@ -1,10 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import axios from '../../service/axios.config'; // Importás tu instancia de axios
+import axios from '../../service/axios.config';
+import EliminarArticulo from './EliminarArticulo'; 
+import ModificarArticulo from './ModificarArticulo';
 
 const ListaArticulos = () => {
   const [articulos, setArticulos] = useState([]);
   const [error, setError] = useState(null);
+  const [articuloAEditar, setArticuloAEditar] = useState(null);
 
   useEffect(() => {
     cargarArticulos();
@@ -19,7 +22,9 @@ const ListaArticulos = () => {
       setError('No se pudieron cargar los artículos.');
     }
   };
-
+   const handleEditar = (articulo) => {
+    setArticuloAEditar(articulo);
+  };
   return (
     <div className='container'>
       <h2>Artículos Disponibles</h2>
@@ -46,11 +51,27 @@ const ListaArticulos = () => {
                 <td>{articulo.descripcion}</td>
                 <td style={{textAlign: 'center'}}>{articulo.stockActualArticulo}</td>
                 <td style={{textAlign: 'center'}}>{articulo.stockSeguridadArticulo}</td>
-                <td style={{display: 'flex', justifyContent:'space-evenly'}}><i style={{cursor: 'pointer'}} class="bi bi-trash3-fill"></i><i  style={{cursor: 'pointer'}} class="bi bi-pencil-square"></i></td>
+                <td style={{display: 'flex', justifyContent:'space-evenly'}}> {/*<i style={{cursor: 'pointer'}} class="bi bi-trash3-fill"></i><i  style={{cursor: 'pointer'}} class="bi bi-pencil-square"></i>*/}
+                <button onClick={() => handleEditar(articulo)}>✏️</button>
+                  <EliminarArticulo
+                    codigoArticulo={articulo.codigoArticulo}
+                    onDeleteSuccess={cargarArticulos}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+       {articuloAEditar && (
+        <ModificarArticulo
+          articulo={articuloAEditar}
+          onCancel={() => setArticuloAEditar(null)}
+          onUpdateSuccess={() => {
+            setArticuloAEditar(null);
+            cargarArticulos();
+          }}
+        />
       )}
     </div>
   );
