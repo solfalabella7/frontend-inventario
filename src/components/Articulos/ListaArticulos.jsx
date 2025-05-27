@@ -41,12 +41,13 @@ const ListaArticulos = () => {
         <table border="1" cellPadding="10">
           <thead>
             <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Stock Actual</th>
-              <th>Stock de Seguridad</th>
-              <th>Fecha de Baja</th>
+              <th style={{textAlign: 'center'}}>Código</th>
+              <th style={{textAlign: 'center'}}>Nombre</th>
+              <th style={{textAlign: 'center'}}>Descripción</th>
+              <th style={{textAlign: 'center'}}>Stock Actual</th>
+              <th style={{textAlign: 'center'}}>Stock de Seguridad</th>
+              <th style={{textAlign: 'center'}}>Estado</th>
+              <th style={{textAlign: 'center'}}>Fecha de Baja</th>
               <th style={{textAlign: 'center'}}>Modificar/Eliminar</th>
             </tr>
           </thead>
@@ -60,10 +61,17 @@ const ListaArticulos = () => {
                 <td>{articulo.descripcion}</td>
                 <td style={{textAlign: 'center'}}>{articulo.stockActualArticulo}</td>
                 <td style={{textAlign: 'center'}}>{articulo.stockSeguridadArticulo}</td>
+                <td style={{
+                  textAlign: 'center',
+                  color: articulo.estadoArticulo === 'NO_DISPONIBLE' ? 'red' : 'green',
+                  fontWeight: 'bold'
+                }}>
+                  {articulo.estadoArticulo || 'ACTIVO'}
+                </td>
                 <td style={{textAlign: 'center'}}>
                   {articulo.fechaHoraBajaArticulo 
                   ? new Date(articulo.fechaHoraBajaArticulo).toLocaleString()
-                  : 'Activo'}
+                  : '-'}
                 </td>
                 <td style={{display: 'flex', justifyContent:'space-evenly',}}> {/*<i style={{cursor: 'pointer'}} class="bi bi-trash3-fill"></i><i  style={{cursor: 'pointer'}} class="bi bi-pencil-square"></i>*/}
                 <button onClick={() => handleEditar(articulo)}>✏️</button>
