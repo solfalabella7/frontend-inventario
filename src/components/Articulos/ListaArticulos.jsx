@@ -1,69 +1,182 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from '../../service/axios.config';
-import EliminarArticulo from './EliminarArticulo'; 
+import EliminarArticulo from './EliminarArticulo';
 import ModificarArticulo from './ModificarArticulo';
+import { Modal, Button, Dropdown } from 'react-bootstrap';
 
-const ListaArticulos = () => {
+const ListaArticulos = ({ filtro = 'todos' }) => {
   const [articulos, setArticulos] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [articuloDetalle, setArticuloDetalle] = useState(null);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [articuloAEditar, setArticuloAEditar] = useState(null);
+  const [proveedores, setProveedores] = useState({});
 
   useEffect(() => {
     cargarArticulos();
-  }, []);
+  }, [filtro]);
 
   const cargarArticulos = async () => {
+    setLoading(true);
     try {
-      const respuesta = await axios.get('/articulos'); // Solo agregás la parte del endpoint
+      let endpoint = '/articulos';
+      if (filtro === 'faltantes') endpoint = '/articulos/articulosFaltantes';
+      if (filtro === 'reponer') endpoint = '/articulos/articulosReponer';
+
+      const respuesta = await axios.get(endpoint);
       setArticulos(respuesta.data);
+      setError(null);
     } catch (err) {
-      console.error('Error al obtener los artículos:', err);
+      console.error('Error al obtener artículos:', err);
       setError('No se pudieron cargar los artículos.');
+      setArticulos([]);
+    } finally {
+      setLoading(false);
     }
   };
-   const handleEditar = (articulo) => {
+
+  const abrirModalDetalle = async (codigo) => {
+    try {
+      const res = await axios.get(`/articulos/${codigo}`);
+      setArticuloDetalle(res.data);
+      setMostrarModal(true);
+      console.log("Detalle recibido:", res.data);
+    } catch (error) {
+      console.error('Error al cargar detalle del artículo:', error);
+    }
+  };
+
+  const cerrarModal = () => {
+    setMostrarModal(false);
+    setArticuloDetalle(null);
+  };
+
+  const handleEditar = (articulo) => {
     setArticuloAEditar(articulo);
   };
+
+  const cargarProveedores = async (codigoArticulo) => {
+    try {
+      const respuesta = await axios.get(`/articulos/${codigoArticulo}/proveedores`);
+      setProveedores(prev => ({
+        ...prev,
+        [codigoArticulo]: respuesta.data
+      }));
+    } catch (err) {
+      console.error('Error al obtener proveedores:', err);
+      setProveedores(prev => ({
+        ...prev,
+        [codigoArticulo]: [{ nombre: 'Error al cargar' }]
+      }));
+    }
+  };
+
   return (
     <div className='container'>
-      <h2>Artículos Disponibles</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {articulos.length === 0 ? (
-        <p>No hay artículos registrados.</p>
+      <h2>
+        {filtro === 'todos' && 'Listado de Artículos'}
+        {filtro === 'faltantes' && 'Artículos Faltantes'}
+        {filtro === 'reponer' && 'Artículos a Reponer'}
+      </h2>
+
+      {loading && <div className="text-center my-3">Cargando...</div>}
+      {error && <div className="alert alert-danger">{error}</div>}
+
+      {!loading && articulos.length === 0 ? (
+        <div className="alert alert-info">No hay artículos registrados.</div>
       ) : (
-        <table border="1" cellPadding="10">
-          <thead>
-            <tr>
-              <th>Código</th>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Stock Actual</th>
-              <th>Stock de Seguridad</th>
-              <th style={{textAlign: 'center'}}>Modificar/Eliminar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {articulos.map((articulo) => (
-              <tr key={articulo.codigoArticulo}>
-                <td>{articulo.codigoArticulo}</td>
-                <td>{articulo.nombreArticulo}</td>
-                <td>{articulo.descripcion}</td>
-                <td style={{textAlign: 'center'}}>{articulo.stockActualArticulo}</td>
-                <td style={{textAlign: 'center'}}>{articulo.stockSeguridadArticulo}</td>
-                <td style={{display: 'flex', justifyContent:'space-evenly'}}> {/*<i style={{cursor: 'pointer'}} class="bi bi-trash3-fill"></i><i  style={{cursor: 'pointer'}} class="bi bi-pencil-square"></i>*/}
-                <button onClick={() => handleEditar(articulo)}>✏️</button>
-                  <EliminarArticulo
-                    codigoArticulo={articulo.codigoArticulo}
-                    onDeleteSuccess={cargarArticulos}
-                  />
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-dark">
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                {filtro === 'todos' && <th>Proveedores</th>}
+                <th className="text-center">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {articulos.map((articulo) => (
+                <tr key={articulo.codigoArticulo}>
+                  <td>{articulo.codigoArticulo}</td>
+                  <td>{articulo.nombreArticulo}</td>
+                  <td>{articulo.descripcion}</td>
+                  {filtro === 'todos' && (
+                    <td>
+                      <Dropdown>
+                        <Dropdown.Toggle variant="outline-primary" size="sm">
+                          Proveedores
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          {proveedores[articulo.codigoArticulo] ? (
+                            proveedores[articulo.codigoArticulo].map((proveedor, index) => (
+                              <Dropdown.Item key={index}>
+                                {proveedor.nombre || `Proveedor ${index + 1}`}
+                              </Dropdown.Item>
+                            ))
+                          ) : (
+                            <Dropdown.Item onClick={() => cargarProveedores(articulo.codigoArticulo)}>
+                              Cargar proveedores
+                            </Dropdown.Item>
+                          )}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
+                  )}
+                  <td className="text-center d-flex gap-2 justify-content-center">
+                    <Button variant="info" size="sm" onClick={() => abrirModalDetalle(articulo.codigoArticulo)}>
+                      Detalles
+                    </Button>
+                    {filtro === 'todos' && (
+                      <>
+                        <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)}>
+                          ✏️
+                        </Button>
+                        <EliminarArticulo codigoArticulo={articulo.codigoArticulo} onDeleteSuccess={cargarArticulos} />
+                      </>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-       {articuloAEditar && (
+
+      <Modal show={mostrarModal} onHide={cerrarModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Detalle del Artículo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {articuloDetalle ? (
+            <ul className="list-group">
+  <li className="list-group-item">Stock Real: {articuloDetalle.stockReal}</li>
+  <li className="list-group-item">Stock Seguridad: {articuloDetalle.stockSeguridad}</li>
+  <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
+  <li className="list-group-item">Precio Unitario: ${articuloDetalle.precioUnitario}</li>
+  <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
+  <li className="list-group-item">Costo Pedido: ${articuloDetalle.costoPedido}</li>
+  <li className="list-group-item">Costo Mantener: ${articuloDetalle.costoMantener}</li>
+  <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
+  <li className="list-group-item">Lote Óptimo: {articuloDetalle.loteOptimo}</li>
+  <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
+  <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
+  <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
+</ul>
+
+          ) : (
+            <p>No se encontró información del artículo.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cerrarModal}>Cerrar</Button>
+        </Modal.Footer>
+      </Modal>
+
+      {articuloAEditar && (
         <ModificarArticulo
           articulo={articuloAEditar}
           onCancel={() => setArticuloAEditar(null)}
