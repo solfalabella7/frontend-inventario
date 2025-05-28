@@ -26,7 +26,15 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
       if (filtro === 'reponer') endpoint = '/articulos/articulosReponer';
 
       const respuesta = await axios.get(endpoint);
-      setArticulos(respuesta.data);
+
+      // Ordenar: primero activos, luego dados de baja
+      const articulosOrdenados = respuesta.data.sort((a, b) => {
+        if (a.fechaHoraBajaArticulo && !b.fechaHoraBajaArticulo) return 1;
+        if (!a.fechaHoraBajaArticulo && b.fechaHoraBajaArticulo) return -1;
+        return 0;
+      });
+
+      setArticulos(articulosOrdenados);
       setError(null);
     } catch (err) {
       console.error('Error al obtener artículos:', err);
@@ -42,7 +50,6 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
       const res = await axios.get(`/articulos/${codigo}`);
       setArticuloDetalle(res.data);
       setMostrarModal(true);
-      console.log("Detalle recibido:", res.data);
     } catch (error) {
       console.error('Error al cargar detalle del artículo:', error);
     }
@@ -135,7 +142,10 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                         <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)}>
                           ✏️
                         </Button>
-                        <EliminarArticulo codigoArticulo={articulo.codigoArticulo} onDeleteSuccess={cargarArticulos} />
+                        <EliminarArticulo
+                          codigoArticulo={articulo.codigoArticulo}
+                          onDeleteSuccess={cargarArticulos}
+                        />
                       </>
                     )}
                   </td>
@@ -153,20 +163,19 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
         <Modal.Body>
           {articuloDetalle ? (
             <ul className="list-group">
-  <li className="list-group-item">Stock Real: {articuloDetalle.stockReal}</li>
-  <li className="list-group-item">Stock Seguridad: {articuloDetalle.stockSeguridad}</li>
-  <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
-  <li className="list-group-item">Precio Unitario: ${articuloDetalle.precioUnitario}</li>
-  <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
-  <li className="list-group-item">Costo Pedido: ${articuloDetalle.costoPedido}</li>
-  <li className="list-group-item">Costo Mantener: ${articuloDetalle.costoMantener}</li>
-  <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
-  <li className="list-group-item">Lote Óptimo: {articuloDetalle.loteOptimo}</li>
-  <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
-  <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
-  <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
-</ul>
-
+              <li className="list-group-item">Stock Real: {articuloDetalle.stockReal}</li>
+              <li className="list-group-item">Stock Seguridad: {articuloDetalle.stockSeguridad}</li>
+              <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
+              <li className="list-group-item">Precio Unitario: ${articuloDetalle.precioUnitario}</li>
+              <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
+              <li className="list-group-item">Costo Pedido: ${articuloDetalle.costoPedido}</li>
+              <li className="list-group-item">Costo Mantener: ${articuloDetalle.costoMantener}</li>
+              <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
+              <li className="list-group-item">Lote Óptimo: {articuloDetalle.loteOptimo}</li>
+              <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
+              <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
+              <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
+            </ul>
           ) : (
             <p>No se encontró información del artículo.</p>
           )}
