@@ -28,7 +28,7 @@ const Home = () => {
               </Link>
             </li>
             <li style={{ marginBottom: "1rem" }}>
-              <Link to="/ordenes" style={{ textDecoration: "none", color: "#333" }}>
+              <Link to="/ordenCompra" style={{ textDecoration: "none", color: "#333" }}>
                 Órdenes de Compra
               </Link>
             </li>

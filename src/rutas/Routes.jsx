@@ -5,8 +5,10 @@ import Articulos from "../pages/Articulos";
 import CreateArticulo from "../components/Articulos/CreateArticulos";
 import ListaArticulos from "../components/Articulos/ListaArticulos";
 import Proveedores from "../pages/Proveedores";
-import Ordenes from "../pages/Ordenes";
 import Ventas from "../pages/Ventas";
+import OrdenCompra from "../pages/OrdenCompra";
+import CreateOrdenCompra from "../components/OrdenCompra/CreateOrdenCompra";
+import ListaOrdenCompra from "../components/OrdenCompra/ListaOrdenCompra";
 
 const AppRoutes = () => {
   return (
@@ -22,9 +24,14 @@ const AppRoutes = () => {
         <Route path="reponer" element={<ListaArticulos filtro="reponer" />} /> {/* /articulos/reponer */}
       </Route>
 
+      {/* Ruta padre para Orden de Compra*/}
+       <Route path="/ordenCompra*" element={<OrdenCompra />}>
+        <Route index element={<ListaOrdenCompra />} /> 
+        <Route path="crear" element={<CreateOrdenCompra />} /> 
+      </Route>
+      
       {/* Otras rutas */}
       <Route path="/proveedores" element={<Proveedores />} />
-      <Route path="/ordenes" element={<Ordenes />} />
       <Route path="/ventas" element={<Ventas />} />
     </Routes>
   );

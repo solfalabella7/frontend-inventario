@@ -53,7 +53,6 @@ const FormCreateArticulo = () => {
             demandaAnual: parseInt(values.demandaAnual)
           };
 
-          console.log("DTO enviado al back:", dtoCompleto);
 
           try {
             const response = await fetch("http://localhost:8080/api/articulos", {
