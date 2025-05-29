@@ -47,7 +47,7 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
 
   const abrirModalDetalle = async (codigo) => {
     try {
-      const res = await axios.get(`/articulos/${codigo}`);
+      const res = await axios.get(`/articulos/${codigo}/detalle`);
       setArticuloDetalle(res.data);
       setMostrarModal(true);
     } catch (error) {
@@ -60,8 +60,14 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
     setArticuloDetalle(null);
   };
 
-  const handleEditar = (articulo) => {
-    setArticuloAEditar(articulo);
+  const handleEditar = async(articulo) => {
+    try {
+      const res = await axios.get(`/articulos/${articulo.codigoArticulo}/detalle`);
+      setArticuloAEditar(res.data);
+    } catch (error) {
+      console.error('Error al obtener detalle del artículo para edición', error);
+    }
+    //setArticuloAEditar(articulo);
   };
 
   const cargarProveedores = async (codigoArticulo) => {
@@ -101,6 +107,7 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                 <th>Código</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
+                <th>Fecha de Baja</th>
                 {filtro === 'todos' && <th>Proveedores</th>}
                 <th className="text-center">Acciones</th>
               </tr>
@@ -111,6 +118,11 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                   <td>{articulo.codigoArticulo}</td>
                   <td>{articulo.nombreArticulo}</td>
                   <td>{articulo.descripcion}</td>
+                  <td>
+                    {articulo.fechaHoraBajaArticulo
+                      ? new Date(articulo.fechaHoraBajaArticulo).toLocaleString('es-AR')
+                      : '-'}
+                  </td>
                   {filtro === 'todos' && (
                     <td>
                       <Dropdown>
@@ -163,18 +175,24 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
         <Modal.Body>
           {articuloDetalle ? (
             <ul className="list-group">
-              <li className="list-group-item">Stock Real: {articuloDetalle.stockReal}</li>
-              <li className="list-group-item">Stock Seguridad: {articuloDetalle.stockSeguridad}</li>
-              <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
-              <li className="list-group-item">Precio Unitario: ${articuloDetalle.precioUnitario}</li>
-              <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
-              <li className="list-group-item">Costo Pedido: ${articuloDetalle.costoPedido}</li>
-              <li className="list-group-item">Costo Mantener: ${articuloDetalle.costoMantener}</li>
-              <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
-              <li className="list-group-item">Lote Óptimo: {articuloDetalle.loteOptimo}</li>
-              <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
-              <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
-              <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
+              
+
+      <li className="list-group-item">Nombre: {articuloDetalle.nombreArticulo}</li>
+      <li className="list-group-item">Descripción: {articuloDetalle.descripcion}</li>
+      <li className="list-group-item">Precio Unitario: ${articuloDetalle.precioUnitario}</li>
+      <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
+      <li className="list-group-item">Costo Pedido: ${articuloDetalle.costoPedido}</li>
+      <li className="list-group-item">Costo Mantener: ${articuloDetalle.costoMantener}</li>
+      <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
+      <li className="list-group-item">Lote Óptimo: {articuloDetalle.loteOptimo}</li>
+      <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
+
+
+      <li className="list-group-item">Stock Real: {articuloDetalle.stockActualArticulo}</li>
+      <li className="list-group-item">Stock Seguridad: {articuloDetalle.stockSeguridadArticulo}</li>
+      <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
+      <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
+      <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
             </ul>
           ) : (
             <p>No se encontró información del artículo.</p>

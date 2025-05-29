@@ -8,6 +8,16 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
     descripcion: '',
     stockActualArticulo: 0,
     stockSeguridadArticulo: 0,
+    precioUnitario: 0,
+
+    demoraEntrega: 0,
+    costoPedido: 0,
+    costoMantener: 0,
+    costoAlmacenamiento: 0,
+    loteOptimo: 0,
+    inventarioMax: 0,
+    modeloElegido: '',
+    demandaAnual: 0,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -19,6 +29,16 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
         descripcion: articulo.descripcion,
         stockActualArticulo: articulo.stockActualArticulo,
         stockSeguridadArticulo: articulo.stockSeguridadArticulo,
+
+        precioUnitario: articulo.precioUnitario,
+        demoraEntrega: articulo.demoraEntrega,
+        costoPedido: articulo.costoPedido,
+        costoMantener: articulo.costoMantener,
+        costoAlmacenamiento: articulo.costoAlmacenamiento,
+        loteOptimo: articulo.loteOptimo,
+        inventarioMax: articulo.inventarioMax,
+        modeloElegido: articulo.modeloElegido,
+        demandaAnual: articulo.demandaAnual,
       });
     }
   }, [articulo]);
@@ -90,6 +110,130 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
               type="number"
               name="stockSeguridadArticulo"
               value={formData.stockSeguridadArticulo}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={0}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Precio Unitario:</label>
+            <input
+              type="number"
+              name="precioUnitario"
+              value={formData.precioUnitario}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={0}
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Demora de Entrega (días):</label>
+            <input
+              type="number"
+              name="demoraEntrega"
+              value={formData.demoraEntrega}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={0}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Costo de Pedido:</label>
+            <input
+              type="number"
+              name="costoPedido"
+              value={formData.costoPedido}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={0}
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Costo de Mantener:</label>
+            <input
+              type="number"
+              name="costoMantener"
+              value={formData.costoMantener}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={0}
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Costo de Almacenamiento:</label>
+            <input
+              type="number"
+              name="costoAlmacenamiento"
+              value={formData.costoAlmacenamiento}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={0}
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Lote Óptimo:</label>
+            <input
+              type="number"
+              name="loteOptimo"
+              value={formData.loteOptimo}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={1}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Inventario Máximo:</label>
+            <input
+              type="number"
+              name="inventarioMax"
+              value={formData.inventarioMax}
+              onChange={handleChange}
+              className={styles.formInput}
+              min={1}
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="modeloElegido" className={styles.formLabel}>Modelo Inventario:</label>
+            <select
+              id="modeloElegido"
+              name="modeloElegido"
+              value={formData.modeloElegido}
+              onChange={handleChange}
+              className={styles.formInput}
+              required
+            >
+              <option value="">Seleccione un modelo</option>
+              <option value="TIEMPO_FIJO">TIEMPO_FIJO</option>
+              <option value="LOTE_FIJO">LOTE_FIJO</option>
+            </select>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.formLabel}>Demanda Anual:</label>
+            <input
+              type="number"
+              name="demandaAnual"
+              value={formData.demandaAnual}
               onChange={handleChange}
               className={styles.formInput}
               min={0}
