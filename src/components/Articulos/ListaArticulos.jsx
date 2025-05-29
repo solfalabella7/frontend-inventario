@@ -60,15 +60,18 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
     setArticuloDetalle(null);
   };
 
-  const handleEditar = async(articulo) => {
-    try {
-      const res = await axios.get(`/articulos/${articulo.codigoArticulo}/detalle`);
-      setArticuloAEditar(res.data);
-    } catch (error) {
-      console.error('Error al obtener detalle del artículo para edición', error);
-    }
-    //setArticuloAEditar(articulo);
-  };
+  const handleEditar = async (articulo) => {
+  try {
+    const res = await axios.get(`/articulos/${articulo.codigoArticulo}/detalle`);
+    const articuloConCodigo = {
+      ...res.data,
+      codigoArticulo: articulo.codigoArticulo, // <- Lo agregás manualmente
+    };
+    setArticuloAEditar(articuloConCodigo);
+  } catch (error) {
+    console.error('Error al obtener detalle del artículo para edición', error);
+  }
+};
 
   const cargarProveedores = async (codigoArticulo) => {
     try {
@@ -104,10 +107,12 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
           <table className="table table-bordered table-hover">
             <thead className="table-dark">
               <tr>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Fecha de Baja</th>
+                <th className="text-center">Código</th>
+                <th className="text-center">Nombre</th>
+                <th className="text-center">Descripción</th>
+                <th className="text-center">Stock Actual</th>
+                <th className="text-center">Stock de Seguridad</th>
+                <th className="text-center">Fecha de Baja</th>
                 {filtro === 'todos' && <th>Proveedores</th>}
                 <th className="text-center">Acciones</th>
               </tr>
@@ -118,6 +123,8 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                   <td>{articulo.codigoArticulo}</td>
                   <td>{articulo.nombreArticulo}</td>
                   <td>{articulo.descripcion}</td>
+                  <td>{articulo.stockActual}</td>
+                  <td>{articulo.stockSeguridad}</td>
                   <td>
                     {articulo.fechaHoraBajaArticulo
                       ? new Date(articulo.fechaHoraBajaArticulo).toLocaleString('es-AR')
@@ -188,8 +195,7 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
       <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
 
 
-      <li className="list-group-item">Stock Real: {articuloDetalle.stockActualArticulo}</li>
-      <li className="list-group-item">Stock Seguridad: {articuloDetalle.stockSeguridadArticulo}</li>
+
       <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
       <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
       <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
