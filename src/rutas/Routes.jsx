@@ -9,6 +9,8 @@ import Ventas from "../pages/Ventas";
 import OrdenCompra from "../pages/OrdenCompra";
 import CreateOrdenCompra from "../components/OrdenCompra/CreateOrdenCompra";
 import ListaOrdenCompra from "../components/OrdenCompra/ListaOrdenCompra";
+import ListaProveedores from "../components/Proveedores/ListaProveedores";
+import CreateProveedor from "../components/Proveedores/CreateProveedor"
 
 const AppRoutes = () => {
   return (
@@ -25,13 +27,18 @@ const AppRoutes = () => {
       </Route>
 
       {/* Ruta padre para Orden de Compra*/}
-       <Route path="/ordenCompra*" element={<OrdenCompra />}>
+       <Route path="/ordenCompra/*" element={<OrdenCompra />}>
         <Route index element={<ListaOrdenCompra />} /> 
         <Route path="crear" element={<CreateOrdenCompra />} /> 
       </Route>
       
-      {/* Otras rutas */}
-      <Route path="/proveedores" element={<Proveedores />} />
+      {/* Ruta padre para Proveedores */}
+      <Route path="/proveedores/*" element={<Proveedores />}> 
+        <Route index element={<ListaProveedores/>} /> {/* /proveedores */}
+        <Route path="crear" element={<CreateProveedor />} /> {/* /proveedores */}
+      </Route>
+
+
       <Route path="/ventas" element={<Ventas />} />
     </Routes>
   );
