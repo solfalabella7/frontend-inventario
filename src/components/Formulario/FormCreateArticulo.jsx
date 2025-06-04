@@ -14,7 +14,8 @@ const FormCreateArticulo = () => {
     precioUnitario: '',
     demandaAnual: '',
     puntoPedido: '',
-    modeloElegido: 'TIEMPO_FIJO'
+    modeloElegido: 'TIEMPO_FIJO',
+    desviacionEstandar: ''
   };
 
   const validationSchema = Yup.object().shape({
@@ -48,12 +49,13 @@ const FormCreateArticulo = () => {
             costoMantener: parseFloat(values.costoMantener),
             costoAlmacenamiento: parseFloat(values.costoAlmacenamiento),
             loteOptimo: parseInt(values.loteOptimo),
-            inventarioMax: 5.0,
+            inventarioMax: 5,
             modeloElegido: values.modeloElegido,
-            demandaAnual: parseInt(values.demandaAnual)
+            demandaAnual: parseInt(values.demandaAnual),
+            desviacionEstandar: parseInt (values.desviacionEstandar)
           };
 
-
+         console.log(dtoCompleto)
           try {
             const response = await fetch("http://localhost:8080/api/articulos", {
               method: "POST",
@@ -149,6 +151,12 @@ const FormCreateArticulo = () => {
                 <option value='LOTE_FIJO'>LOTE_FIJO</option>
               </Field>
               <ErrorMessage name="modeloElegido" component="div" className="text-danger" />
+            </FormBs.Group>
+
+             <FormBs.Group className="mb-3">
+              <label htmlFor='desviacionEstandar'>Desviacion Estandar</label>
+              <Field id='desviacionEstandar' type='number' name='desviacionEstandar' className='form-control field-input' />
+              <ErrorMessage name="desviacionEstandar" component="div" className="text-danger" />
             </FormBs.Group>
 
             <Button className='btn btn-primary' type='submit'>Cargar nuevo artículo</Button>

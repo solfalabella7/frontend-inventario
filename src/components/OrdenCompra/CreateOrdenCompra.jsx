@@ -1,100 +1,117 @@
 import React, { useState, useEffect } from 'react';
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, FieldArray, ErrorMessage } from "formik";
 import * as Yup from 'yup'; 
 import Button from 'react-bootstrap/Button';
 import FormBs from 'react-bootstrap/Form';
+import axios from '../../service/axios.config';
 
 const CreateOrdenCompra = () => {
- 
-    const initialValues = {
-    numeroOrdenCompra: '',
-    nombreOrdenCompra: '',
-    cantidadOrdenCompra: ''
-    /*codigoProveedor: '' ESTO IRIA PARA CUANDO CARGA EL PROVEEDOR DETERMINADO*/
+  const [articulos, setArticulos] = useState([]);
+  const [proveedores, setProveedores] = useState([]);
+
+  useEffect(() => {
+    axios.get('/articulos')
+      .then(res => setArticulos(res.data))
+      .catch(err => console.error('Error al cargar artículos:', err));
+
+    axios.get('/proveedores')
+      .then(res => setProveedores(res.data))
+      .catch(err => console.error('Error al cargar proveedores:', err));
+  }, []);
+
+  const initialValues = {
+    nroOrden: '',
+    nombreOC: '',
+    detallesOC: [
+      { codArticulo: '', cantidadArticulo: 0, nombreArticulo: ''}
+    ]
   };
 
   const validationSchema = Yup.object().shape({
-      numeroOrdenCompra: Yup.number().required('El campo es obligatorio').min(0, 'No puede ser negativo'),
-      nombreOrdenCompra: Yup.string().max(150, 'Descripcion demasiada larga'),
-      cantidadOrdenCompra: Yup.number().required('Requerido').min(0, 'No puede ser negativo'), 
-      /*codigoProveedor: '' ESTO IRIA PARA CUANDO CARGA EL PROVEEDOR DETERMINADO*/
-    });
+    nroOrden: Yup.number().required('El campo es obligatorio').min(0, 'No puede ser negativo'),
+    nombreOC: Yup.string().max(150, 'Nombre demasiado largo').required('Campo requerido'),
+    detallesOC: Yup.array().of(
+      Yup.object().shape({
+        codArticulo: Yup.string().required('Seleccione un artículo'),
+        cantidadArticulo: Yup.number().required('Ingrese cantidad').min(1, 'Debe ser al menos 1')
+      })
+    )
+  });
 
-   
-    return (
-        <div className='container'>
-            <h3 className="my-3">Crear Orden de Compra</h3>
-            <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={async (values, { setSubmitting, resetForm }) => {
-                    try {
-                        //ACA FALTA EL ENDPOINT DE LA API 
-                        const response = await axios.post('/ordenes-compra', values); 
-                        alert('Orden de compra creada exitosamente ✅');
-                        resetForm();
-                    } catch (error) {
-                        console.error('Error al crear orden:', error);
-                        alert('❌ Error al crear la orden de compra');
-                    } finally {
-                        setSubmitting(false);
-                    }
-                 }}
-            >
-                {({ isSubmitting }) => (
-                    <Form>
-                        <FormBs.Group className="mb-3">
-                            <label htmlFor="numeroOrdenCompra">Número de Orden</label>
-                            <Field
-                                id="numeroOrdenCompra"
-                                name="numeroOrdenCompra"
-                                type="number"
-                                className="form-control"
-                            />
-                            <ErrorMessage name="numeroOrdenCompra" component="div" className="text-danger" />
-                        </FormBs.Group>
+  return (
+    <div className='container'>
+      <h3 className="my-3">Crear Orden de Compra</h3>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={async (values, { setSubmitting, resetForm }) => {
+          try {
+            const response = await axios.post('/api/ordenes-compra', values);
+            alert('Orden de compra creada exitosamente ✅');
+            resetForm();
+          } catch (error) {
+            console.error('Error al crear orden:', error);
+            alert('❌ Error al crear la orden de compra');
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+      >
+        {({ isSubmitting, values }) => (
+          <Form>
+            <FormBs.Group className="mb-3">
+              <label htmlFor="nroOrden">Número de Orden N°</label>
+              <Field id="nroOrden" name="nroOrden" type="number" className="form-control" />
+              <ErrorMessage name="nroOrden" component="div" className="text-danger" />
+            </FormBs.Group>
 
-                        <FormBs.Group className="mb-3">
-                            <label htmlFor="nombreOrdenCompra">Nombre de Orden</label>
-                            <Field
-                                id="nombreOrdenCompra"
-                                name="nombreOrdenCompra"
-                                type="text"
-                                className="form-control"
-                            />
-                            <ErrorMessage name="nombreOrdenCompra" component="div" className="text-danger" />
-                        </FormBs.Group>
+            <FormBs.Group className="mb-3">
+              <label htmlFor="nombreOC">Nombre de Orden</label>
+              <Field id="nombreOC" name="nombreOC" type="text" className="form-control" />
+              <ErrorMessage name="nombreOC" component="div" className="text-danger" />
+            </FormBs.Group>
 
-                        <FormBs.Group className="mb-3">
-                            <label htmlFor="cantidadOrdenCompra">Cantidad</label>
-                            <Field
-                                id="cantidadOrdenCompra"
-                                name="cantidadOrdenCompra"
-                                type="number"
-                                className="form-control"
-                            />
-                            <ErrorMessage name="cantidadOrdenCompra" component="div" className="text-danger" />
-                        </FormBs.Group>
+            <FormBs.Group className="mb-3">
+                 <FormBs.Label>Estado</FormBs.Label>
+                 <FormBs.Control type="text" value="PENDIENTE" readOnly plaintext />
+             </FormBs.Group>
 
-                       {/*} <FormBs.Group className="mb-3">
-                            <label htmlFor="proveedorId">Proveedor</label>
-                            <Field as="select" name="proveedorId" className="form-control">
-                                <option value="">-- Seleccionar proveedor --</option>
-                                {proveedores.map((prov) => (
-                                    <option key={prov.id} value={prov.id}>
-                                        {prov.nombre}
-                                    </option>
-                                ))}
-                            </Field>
-                            <ErrorMessage name="proveedorId" component="div" className="text-danger" />
-                        </FormBs.Group>*/}
 
-                        <Button type="submit" disabled={isSubmitting}>Crear Orden</Button>
-                    </Form>
-                )}
-            </Formik>
-        </div>
-    ); 
-}
+            <FieldArray name="detallesOC">
+              {({ push, remove }) => (
+                <div>
+                  <h5>Artículos</h5>
+                  {values.detallesOC.map((_, index) => (
+                    <div key={index} className="row mb-2">
+                      <div className="col-md-6">
+                        <Field as="select" name={`detallesOC[${index}].codArticulo`} className="form-control">
+                          <option value=''>-- Seleccionar artículo --</option>
+                          {articulos.map(a => (
+                            <option key={a.codigoArticulo} value={a.codigoArticulo}>{a.nombreArticulo}</option>
+                          ))}
+                        </Field>
+                        <ErrorMessage name={`detallesOC[${index}].codArticulo`} component="div" className="text-danger" />
+                      </div>
+                      <div className="col-md-4">
+                        <Field type="number" name={`detallesOC[${index}].cantidadArticulo`} className="form-control" placeholder="Cantidad" />
+                        <ErrorMessage name={`detallesOC[${index}].cantidadArticulo`} component="div" className="text-danger" />
+                      </div>
+                      <div className="col-md-2">
+                        <Button variant="danger" onClick={() => remove(index)} disabled={values.detallesOC.length === 1}>X</Button>
+                      </div>
+                    </div>
+                  ))}
+                  <Button type="button" onClick={() => push({ codArticulo: '', cantidadArticulo: '' })}>Agregar Artículo</Button>
+                </div>
+              )}
+            </FieldArray>
 
-export default CreateOrdenCompra; 
+            <Button type="submit" disabled={isSubmitting} className="mt-3">Crear Orden</Button>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
+};
+
+export default CreateOrdenCompra;

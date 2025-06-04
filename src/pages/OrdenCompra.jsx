@@ -41,4 +41,4 @@ const OrdenCompra = () => {
     ); 
 }
 
-export default OrdenCompra
+export default OrdenCompra;
