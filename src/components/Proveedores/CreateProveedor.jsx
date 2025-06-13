@@ -55,7 +55,7 @@ const CreateProveedor = ({ onSuccess }) => {
 
     // Verificar si el artículo ya está en las asociaciones
     if (asociaciones.some(a => a.codigoArticulo === currentAsociacion.codigoArticulo)) {
-      setError('Este artículo ya está asociado');
+      setError('Este artículo ya está seleccionado');
       return;
     }
 

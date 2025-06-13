@@ -11,6 +11,7 @@ import CreateOrdenCompra from "../components/OrdenCompra/CreateOrdenCompra";
 import ListaOrdenCompra from "../components/OrdenCompra/ListaOrdenCompra";
 import ListaProveedores from "../components/Proveedores/ListaProveedores";
 import CreateProveedor from "../components/Proveedores/CreateProveedor"
+import EditarProveedor from "../components/Proveedores/EditarProveedor";
 
 const AppRoutes = () => {
   return (
@@ -27,15 +28,16 @@ const AppRoutes = () => {
       </Route>
 
       {/* Ruta padre para Orden de Compra*/}
-       <Route path="/ordenCompra/*" element={<OrdenCompra />}>
-        <Route index element={<ListaOrdenCompra />} /> 
-        <Route path="crear" element={<CreateOrdenCompra />} /> 
+      <Route path="/ordenCompra/*" element={<OrdenCompra />}>
+        <Route index element={<ListaOrdenCompra />} />
+        <Route path="crear" element={<CreateOrdenCompra />} />
       </Route>
-      
+
       {/* Ruta padre para Proveedores */}
-      <Route path="/proveedores/*" element={<Proveedores />}> 
-        <Route index element={<ListaProveedores/>} /> {/* /proveedores */}
+      <Route path="/proveedores/*" element={<Proveedores />}>
+        <Route index element={<ListaProveedores />} /> {/* /proveedores */}
         <Route path="crear" element={<CreateProveedor />} /> {/* /proveedores */}
+        <Route path="editar/:id" element={<EditarProveedor />} />
       </Route>
 
 

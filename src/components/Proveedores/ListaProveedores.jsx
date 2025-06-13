@@ -37,6 +37,11 @@ const ListaProveedores = () => {
         try {
             const response = await axios.get('/proveedores');
             setProveedores(response.data);
+            const ordenados = response.data.sort((a, b) => {
+                // Los activos primero (true > false)
+                return (b.activo === true) - (a.activo === true);
+            });
+            setProveedores(ordenados);
         } catch (err) {
             console.error('Error al cargar proveedores:', err);
             setError('No se pudieron cargar los proveedores. Intente nuevamente.');
@@ -47,8 +52,10 @@ const ListaProveedores = () => {
 
     const verArticulosProveedor = async (codigoProveedor) => {
         setLoadingArticulos(true);
+        setError(null);
         try {
             const response = await axios.get(`/proveedores/${codigoProveedor}/articulos`);
+            console.log("Artículos recibidos:", response.data); // <- Verifica aquí
             setArticulosProveedor(response.data);
             setProveedorSeleccionado(
                 proveedores.find(p => p.codigoProveedor === codigoProveedor)
@@ -85,7 +92,7 @@ const ListaProveedores = () => {
     };
 
     const getEstadoProveedor = (proveedor) => {
-        if (proveedor.fechaHoraBajaProveedor) {
+        if (!proveedor.activo) {
             return <Badge bg="secondary">Inactivo</Badge>;
         }
         return <Badge bg="success">Activo</Badge>;
@@ -127,7 +134,10 @@ const ListaProveedores = () => {
                         </thead>
                         <tbody>
                             {proveedores.map((proveedor) => (
-                                <tr key={proveedor.codigoProveedor}>
+                                <tr
+                                    key={proveedor.codigoProveedor}
+                                    className={!proveedor.activo ? 'table-secondary' : ''}
+                                >
                                     <td>{proveedor.codigoProveedor}</td>
                                     <td>{proveedor.nombreProveedor}</td>
                                     <td className="text-center">{getEstadoProveedor(proveedor)}</td>
@@ -155,8 +165,6 @@ const ListaProveedores = () => {
                                                 onDeleteSuccess={cargarProveedores}
                                                 disabled={!!proveedor.fechaHoraBajaProveedor}
                                             />
-
-
                                             {/*<Button
                                                 variant="danger"
                                                 size="sm"
@@ -177,6 +185,9 @@ const ListaProveedores = () => {
                         <Modal.Header closeButton>
                             <Modal.Title>
                                 Artículos del proveedor: {proveedorSeleccionado?.nombreProveedor}
+                                <Badge bg="info" className="ms-2">
+                                    {articulosProveedor.length} artículos
+                                </Badge>
                             </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
@@ -188,40 +199,42 @@ const ListaProveedores = () => {
                             ) : articulosProveedor.length === 0 ? (
                                 <Alert variant="info">Este proveedor no tiene artículos asociados.</Alert>
                             ) : (
-                                <ListGroup>
-                                    {articulosProveedor.map((pa) => (
-                                        <ListGroup.Item key={pa.codigoProveedorArticulo}>
-                                            <div className="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h5>{pa.articulo.nombreArticulo}</h5>
-                                                    <div className="text-muted">Código: {pa.articulo.codigoArticulo}</div>
-                                                    <div className="mt-2">
-                                                        <Badge bg="light" text="dark" className="me-2">
-                                                            Precio: ${pa.precioUnitProveedorArticulo.toFixed(2)}
-                                                        </Badge>
-                                                        <Badge bg="light" text="dark" className="me-2">
-                                                            Demora: {pa.demoraEntrega} días
-                                                        </Badge>
-                                                        {pa.esPredeterminado && (
-                                                            <Badge bg="primary">Predeterminado</Badge>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <Button
-                                                        variant="outline-secondary"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            // Aquí podrías implementar la edición de la asociación
-                                                        }}
-                                                    >
-                                                        Editar
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </ListGroup.Item>
-                                    ))}
-                                </ListGroup>
+                                
+                                <Table striped bordered hover>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Artículo</th>
+                                            <th>Código</th>
+                                            <th>Precio</th>
+                                            <th>Demora</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {articulosProveedor.map((pa, index) => (
+                                            <tr key={pa.codigoProveedorArticulo || index}>
+                                                <td>{index + 1}</td>
+                                                <td>
+                                                    {pa.articulo.nombreArticulo}
+                                                    {pa.esPredeterminado && (
+                                                        <Badge bg="primary" className="ms-2">Predeterminado</Badge>
+                                                    )}
+                                                </td>
+                                                <td>{pa.articulo.codigoArticulo}</td>
+                                                <td>${pa.precioUnitProveedorArticulo.toFixed(2)}</td>
+                                                <td>{pa.demoraEntrega} días</td>
+                                                <td>
+                                                    {pa.articulo.fechaHoraBajaArticulo ? (
+                                                        <Badge bg="secondary">Inactivo</Badge>
+                                                    ) : (
+                                                        <Badge bg="success">Activo</Badge>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
                             )}
                         </Modal.Body>
                         <Modal.Footer>
