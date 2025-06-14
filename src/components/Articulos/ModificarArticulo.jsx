@@ -88,13 +88,13 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
             { label: 'Descripción', name: 'descripcion', type: 'textarea' },
             { label: 'Stock Actual', name: 'stockReal', type: 'number' },
             { label: 'Stock de Seguridad', name: 'stockSeguridad', type: 'number' },
-            { label: 'Precio Unitario', name: 'precioUnitario', type: 'number', step: '0.01' },
-            { label: 'Demora de Entrega (días)', name: 'demoraEntrega', type: 'number' },
-            { label: 'Costo de Pedido', name: 'costoPedido', type: 'number', step: '0.01' },
-            { label: 'Costo de Mantener', name: 'costoMantener', type: 'number', step: '0.01' },
+            //{ label: 'Precio Unitario', name: 'precioUnitario', type: 'number', step: '0.01' },
+           // { label: 'Demora de Entrega (días)', name: 'demoraEntrega', type: 'number' },
+            //{ label: 'Costo de Pedido', name: 'costoPedido', type: 'number', step: '0.01' },
+          //  { label: 'Costo de Mantener', name: 'costoMantener', type: 'number', step: '0.01' },
             { label: 'Costo de Almacenamiento', name: 'costoAlmacenamiento', type: 'number', step: '0.01' },
-            { label: 'Lote Óptimo', name: 'loteOptimo', type: 'number' },
-            { label: 'Inventario Máximo', name: 'inventarioMax', type: 'number' },
+           // { label: 'Lote Óptimo', name: 'loteOptimo', type: 'number' },
+           // { label: 'Inventario Máximo', name: 'inventarioMax', type: 'number' },
             { label: 'Demanda Anual', name: 'demandaAnual', type: 'number' }
           ].map(({ label, name, type, step }) => (
             <div key={name} className={styles.formGroup}>

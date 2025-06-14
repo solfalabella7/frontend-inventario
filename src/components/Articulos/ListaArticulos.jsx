@@ -186,19 +186,12 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
 
       <li className="list-group-item">Nombre: {articuloDetalle.nombreArticulo}</li>
       <li className="list-group-item">Descripción: {articuloDetalle.descripcion}</li>
-      <li className="list-group-item">Precio Unitario: ${articuloDetalle.precioUnitario}</li>
       <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
-      <li className="list-group-item">Costo Pedido: ${articuloDetalle.costoPedido}</li>
-      <li className="list-group-item">Costo Mantener: ${articuloDetalle.costoMantener}</li>
       <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
-      <li className="list-group-item">Lote Óptimo: {articuloDetalle.loteOptimo}</li>
       <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
-
-
-
       <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
-      <li className="list-group-item">Demora Entrega: {articuloDetalle.demoraEntrega} días</li>
-      <li className="list-group-item">Inventario Máx: {articuloDetalle.inventarioMax}</li>
+      
+      
             </ul>
           ) : (
             <p>No se encontró información del artículo.</p>
