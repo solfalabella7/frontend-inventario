@@ -25,17 +25,24 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
       if (filtro === 'faltantes') endpoint = '/articulos/articulosFaltantes';
       if (filtro === 'reponer') endpoint = '/articulos/articulosReponer';
 
-      const respuesta = await axios.get(endpoint);
+    const respuesta = await axios.get(endpoint);
+console.log("Respuesta del backend:", respuesta.data);
 
-      // Ordenar: primero activos, luego dados de baja
-      const articulosOrdenados = respuesta.data.sort((a, b) => {
-        if (a.fechaHoraBajaArticulo && !b.fechaHoraBajaArticulo) return 1;
-        if (!a.fechaHoraBajaArticulo && b.fechaHoraBajaArticulo) return -1;
-        return 0;
-      });
+if (Array.isArray(respuesta.data)) {
+  const articulosOrdenados = respuesta.data.sort((a, b) => {
+    if (a.fechaHoraBajaArticulo && !b.fechaHoraBajaArticulo) return 1;
+    if (!a.fechaHoraBajaArticulo && b.fechaHoraBajaArticulo) return -1;
+    return 0;
+  });
 
-      setArticulos(articulosOrdenados);
-      setError(null);
+  setArticulos(articulosOrdenados);
+  setError(null);
+} else {
+  console.warn("La respuesta del backend no es un array:", respuesta.data);
+  setArticulos([]);
+  setError("No se pudo obtener una lista válida de artículos.");
+}
+
     } catch (err) {
       console.error('Error al obtener artículos:', err);
       setError('No se pudieron cargar los artículos.');

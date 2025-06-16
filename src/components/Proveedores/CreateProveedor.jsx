@@ -16,8 +16,8 @@ const CreateProveedor = ({ onSuccess }) => {
   const [asociaciones, setAsociaciones] = useState([]);
   const [currentAsociacion, setCurrentAsociacion] = useState({
     codigoArticulo: '',
-    precioUnitProveedorArticulo: 0,
-    demoraEntrega: 1,
+    precioUnitProveedorArticulo: '',
+    demoraEntrega: '',
     esPredeterminado: false
   });
   const [error, setError] = useState(null);
@@ -38,6 +38,7 @@ const CreateProveedor = ({ onSuccess }) => {
 
   const initialValues = {
     nombreProveedor: '',
+    
   };
 
   const validationSchema = Yup.object().shape({
@@ -62,8 +63,8 @@ const CreateProveedor = ({ onSuccess }) => {
     setAsociaciones([...asociaciones, currentAsociacion]);
     setCurrentAsociacion({
       codigoArticulo: '',
-      precioUnitProveedorArticulo: 0,
-      demoraEntrega: 1,
+      precioUnitProveedorArticulo: '',
+      demoraEntrega: '',
       esPredeterminado: false
     });
     setError(null);
@@ -87,7 +88,8 @@ const CreateProveedor = ({ onSuccess }) => {
         nombreProveedor: values.nombreProveedor,
         asociaciones: asociaciones
       };
-
+      
+    console.log("DTO enviado al backend:", proveedorData); 
       const response = await api.post('/proveedores', proveedorData);
       
       setSuccess(`Proveedor "${response.data.nombreProveedor}" creado exitosamente con ${asociaciones.length} artículo(s) asociado(s)`);
@@ -140,7 +142,7 @@ const CreateProveedor = ({ onSuccess }) => {
                   value={currentAsociacion.codigoArticulo}
                   onChange={(e) => setCurrentAsociacion({
                     ...currentAsociacion,
-                    codigoArticulo: e.target.value
+                    codigoArticulo: parseInt(e.target.value)
                   })}
                 >
                   <option value="">Seleccione un artículo</option>
@@ -194,7 +196,7 @@ const CreateProveedor = ({ onSuccess }) => {
                   value={currentAsociacion.demoraEntrega}
                   onChange={(e) => setCurrentAsociacion({
                     ...currentAsociacion,
-                    demoraEntrega: parseInt(e.target.value) || 1
+                    demoraEntrega: e.target.value !== '' ? parseInt(e.target.value) : ''
                   })}
                 />
               </FormBs.Group>

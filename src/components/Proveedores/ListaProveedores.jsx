@@ -212,27 +212,25 @@ const ListaProveedores = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {articulosProveedor.map((pa, index) => (
-                                            <tr key={pa.codigoProveedorArticulo || index}>
-                                                <td>{index + 1}</td>
-                                                <td>
-                                                    {pa.articulo.nombreArticulo}
-                                                    {pa.esPredeterminado && (
-                                                        <Badge bg="primary" className="ms-2">Predeterminado</Badge>
-                                                    )}
-                                                </td>
-                                                <td>{pa.articulo.codigoArticulo}</td>
-                                                <td>${pa.precioUnitProveedorArticulo.toFixed(2)}</td>
-                                                <td>{pa.demoraEntrega} días</td>
-                                                <td>
-                                                    {pa.articulo.fechaHoraBajaArticulo ? (
-                                                        <Badge bg="secondary">Inactivo</Badge>
-                                                    ) : (
-                                                        <Badge bg="success">Activo</Badge>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        <tbody>
+                                            {articulosProveedor.map((articulo, index) => (
+                                                 <tr key={articulo.codigoArticulo || index}>
+                                                        <td>{index + 1}</td>
+                                                        <td>{articulo.nombreArticulo || '-'}</td>
+                                                        <td>{articulo.codigoArticulo || '-'}</td>
+                                                        <td>-</td> {/* No disponible en la respuesta */}
+                                                        <td>-</td> {/* No disponible en la respuesta */}
+                                                         <td>
+                                                             {articulo.fechaHoraBajaArticulo ? (
+                                                                 <Badge bg="secondary">Inactivo</Badge>
+                                                                 ) : (
+                                                             <Badge bg="success">Activo</Badge>
+                                                            )}
+                                                        </td>
+                                                     </tr>
+                                                            ))}
+                                                        </tbody>
+
                                     </tbody>
                                 </Table>
                             )}

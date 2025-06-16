@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import FormBs from 'react-bootstrap/Form';
 import axios from '../../service/axios.config';
 
+
+
 const CreateOrdenCompra = () => {
   const [articulos, setArticulos] = useState([]);
   const [proveedores, setProveedores] = useState([]);
@@ -20,16 +22,16 @@ const CreateOrdenCompra = () => {
   }, []);
 
   const initialValues = {
-    nroOrden: '',
     nombreOC: '',
+    codProveedor: '',
     detallesOC: [
-      { codArticulo: '', cantidadArticulo: 0, nombreArticulo: ''}
+      { codArticulo: '', cantidadArticulo: 0 }
     ]
   };
 
   const validationSchema = Yup.object().shape({
-    nroOrden: Yup.number().required('El campo es obligatorio').min(0, 'No puede ser negativo'),
     nombreOC: Yup.string().max(150, 'Nombre demasiado largo').required('Campo requerido'),
+    codProveedor: Yup.number().required('Seleccione un proveedor'),
     detallesOC: Yup.array().of(
       Yup.object().shape({
         codArticulo: Yup.string().required('Seleccione un artículo'),
@@ -46,6 +48,7 @@ const CreateOrdenCompra = () => {
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           try {
+             console.log("Datos enviados al backend:", values); 
             const response = await axios.post('/ordenCompra', values);
             alert('Orden de compra creada exitosamente ✅');
             resetForm();
@@ -60,34 +63,26 @@ const CreateOrdenCompra = () => {
         {({ isSubmitting, values }) => (
           <Form>
             <FormBs.Group className="mb-3">
-              <label htmlFor="nroOrden">Número de Orden N°</label>
-              <Field id="nroOrden" name="nroOrden" type="number" className="form-control" />
-              <ErrorMessage name="nroOrden" component="div" className="text-danger" />
-            </FormBs.Group>
-
-            <FormBs.Group className="mb-3">
               <label htmlFor="nombreOC">Nombre de Orden</label>
               <Field id="nombreOC" name="nombreOC" type="text" className="form-control" />
               <ErrorMessage name="nombreOC" component="div" className="text-danger" />
             </FormBs.Group>
 
             <FormBs.Group className="mb-3">
-                 <FormBs.Label>Estado</FormBs.Label>
-                 <FormBs.Control type="text" value="PENDIENTE" readOnly plaintext />
-             </FormBs.Group>
-
-            <FormBs.Group className="mb-3">
-              <label htmlFor="nombreProveedor">Nombre Proveedor</label>
-              <Field id="nombreProveedor" name="nombreProveedor" type="text" className="form-control" />
-              <ErrorMessage name="nombreProveedor" component="div" className="text-danger" />
-            </FormBs.Group>
-
-            <FormBs.Group className="mb-3">
-              <label htmlFor="codProveedor">Codigo Proveedor</label>
-              <Field id="codProveedor" name="codProveedor" type="number" className="form-control" />
+              <label htmlFor="codProveedor">Proveedor</label>
+              <Field as="select" id="codProveedor" name="codProveedor" className="form-control">
+                <option value=''>-- Seleccionar proveedor --</option>
+                {proveedores.map(p => (
+                  <option key={p.codigoProveedor} value={p.codigoProveedor}>{p.nombreProveedor}</option>
+                ))}
+              </Field>
               <ErrorMessage name="codProveedor" component="div" className="text-danger" />
             </FormBs.Group>
 
+            <FormBs.Group className="mb-3">
+              <FormBs.Label>Estado</FormBs.Label>
+              <FormBs.Control type="text" value="PENDIENTE" readOnly plaintext />
+            </FormBs.Group>
 
             <FieldArray name="detallesOC">
               {({ push, remove }) => (
@@ -122,6 +117,8 @@ const CreateOrdenCompra = () => {
           </Form>
         )}
       </Formik>
+
+   
     </div>
   );
 };
