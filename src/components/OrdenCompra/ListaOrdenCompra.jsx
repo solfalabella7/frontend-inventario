@@ -27,7 +27,7 @@ const ListaOrdenesCompra = () => {
 
   const verDetalle = async (nro) => {
     try {
-      const response = await axios.get(`/ordenes-compra/${nro}/datos`);
+      const response = await axios.get(`/ordenCompra/${nro}/datos`);
       setDetalle(response.data);
       setDetalleVisible(true);
     } catch (err) {
@@ -44,7 +44,7 @@ const ListaOrdenesCompra = () => {
   const eliminarOC = async (nro) => {
     if (window.confirm('¿Estás seguro de que querés eliminar esta orden?')) {
       try {
-        await axios.delete(`/ordenes-compra/${nro}`);
+        await axios.delete(`/ordenCompra/${nro}`);
         cargarOrdenes();
       } catch (err) {
         console.error(err);

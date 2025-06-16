@@ -166,6 +166,26 @@ const CreateProveedor = ({ onSuccess }) => {
                 />
               </FormBs.Group>
 
+             <FormBs.Group className="mb-3">
+              <label htmlFor='costoPedido'>Costo de Pedido</label>
+              <Field id='costoPedido' type='number' name='costoPedido' className='form-control field-input' />
+              <ErrorMessage name="costoPedido" component="div" className="text-danger" />
+            </FormBs.Group> 
+
+            <FormBs.Group className="mb-3">
+              <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
+              <Field id='costoMantener' type='number' name='costoMantener' className='form-control field-input' />
+              <ErrorMessage name="costoMantener" component="div" className="text-danger" />
+            </FormBs.Group>
+            
+            <FormBs.Group className="mb-3">
+              <label htmlFor='loteOptimo'>Lote Optimo</label>
+              <Field id='loteOptimo' type='number' name='loteOptimo' className='form-control field-input' />
+              <ErrorMessage name="loteOptimo" component="div" className="text-danger" />
+            </FormBs.Group>
+            
+            
+
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Demora de Entrega (días)</FormBs.Label>
                 <FormBs.Control
@@ -205,11 +225,12 @@ const CreateProveedor = ({ onSuccess }) => {
                 <h6>Artículos asociados:</h6>
                 <ListGroup>
                   {asociaciones.map((asoc, index) => {
-                    const articulo = articulos.find(a => a.codigoArticulo === asoc.codigoArticulo);
-                    return (
+                   // const articulo = articulos.find(a => a.codigoArticulo === asoc.codigoArticulo);
+                   const articulo = articulos.find(a => String(a.codigoArticulo) === String(asoc.codigoArticulo));
+                   return (
                       <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
                         <div>
-                          <strong>{articulo?.nombreArticulo || 'Artículo no encontrado'}</strong>
+                          <strong>{articulo?.nombreArticulo}</strong>
                           <div className="text-muted">Código: {asoc.codigoArticulo}</div>
                           <div>Precio: ${asoc.precioUnitProveedorArticulo.toFixed(2)}</div>
                           <div>Demora: {asoc.demoraEntrega} días</div>

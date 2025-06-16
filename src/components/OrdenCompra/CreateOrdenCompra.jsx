@@ -46,7 +46,7 @@ const CreateOrdenCompra = () => {
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           try {
-            const response = await axios.post('/api/ordenes-compra', values);
+            const response = await axios.post('/ordenCompra', values);
             alert('Orden de compra creada exitosamente ✅');
             resetForm();
           } catch (error) {
@@ -75,6 +75,18 @@ const CreateOrdenCompra = () => {
                  <FormBs.Label>Estado</FormBs.Label>
                  <FormBs.Control type="text" value="PENDIENTE" readOnly plaintext />
              </FormBs.Group>
+
+            <FormBs.Group className="mb-3">
+              <label htmlFor="nombreProveedor">Nombre Proveedor</label>
+              <Field id="nombreProveedor" name="nombreProveedor" type="text" className="form-control" />
+              <ErrorMessage name="nombreProveedor" component="div" className="text-danger" />
+            </FormBs.Group>
+
+            <FormBs.Group className="mb-3">
+              <label htmlFor="codProveedor">Codigo Proveedor</label>
+              <Field id="codProveedor" name="codProveedor" type="number" className="form-control" />
+              <ErrorMessage name="codProveedor" component="div" className="text-danger" />
+            </FormBs.Group>
 
 
             <FieldArray name="detallesOC">
