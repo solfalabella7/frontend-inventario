@@ -200,40 +200,28 @@ const ListaProveedores = () => {
                                 <Alert variant="info">Este proveedor no tiene artículos asociados.</Alert>
                             ) : (
                                 
-                                <Table striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Artículo</th>
-                                            <th>Código</th>
-                                            <th>Precio</th>
-                                            <th>Demora</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tbody>
-                                            {articulosProveedor.map((articulo, index) => (
-                                                 <tr key={articulo.codigoArticulo || index}>
+                                        <Table striped bordered hover>
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Código</th>
+                                                    <th>Precio</th>
+                                                    <th>Demora</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {articulosProveedor.map((articulo, index) => (
+                                                    <tr key={articulo.codigoArticulo || index}>
                                                         <td>{index + 1}</td>
-                                                        <td>{articulo.nombreArticulo || '-'}</td>
-                                                        <td>{articulo.codigoArticulo || '-'}</td>
-                                                        <td>-</td> {/* No disponible en la respuesta */}
-                                                        <td>-</td> {/* No disponible en la respuesta */}
-                                                         <td>
-                                                             {articulo.fechaHoraBajaArticulo ? (
-                                                                 <Badge bg="secondary">Inactivo</Badge>
-                                                                 ) : (
-                                                             <Badge bg="success">Activo</Badge>
-                                                            )}
-                                                        </td>
-                                                     </tr>
-                                                            ))}
-                                                        </tbody>
+                                                        <td>{articulo.codigoArticulo}</td>
+                                                        <td>${articulo.precioUnitProveedorArticulo}</td>
+                                                        <td>{articulo.demoraEntrega} días</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </Table>
 
-                                    </tbody>
-                                </Table>
-                            )}
+                                    )}
                         </Modal.Body>
                         <Modal.Footer>
                             <Button variant="secondary" onClick={() => setShowModal(false)}>

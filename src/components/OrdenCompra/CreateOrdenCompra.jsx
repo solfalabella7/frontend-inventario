@@ -48,16 +48,22 @@ const CreateOrdenCompra = () => {
         validationSchema={validationSchema}
         onSubmit={async (values, { setSubmitting, resetForm }) => {
           try {
-             console.log("Datos enviados al backend:", values); 
             const response = await axios.post('/ordenCompra', values);
-            alert('Orden de compra creada exitosamente ✅');
+            const { advertencia } = response.data;
+
+            if (advertencia) {
+              alert('⚠️ Algunos artículos no superan el punto de pedido.✅ La orden igual ha sido cargada.');
+            } else {
+              alert('✅ Orden de compra creada exitosamente.');
+            }
+
             resetForm();
           } catch (error) {
             console.error('Error al crear orden:', error);
             alert('❌ Error al crear la orden de compra');
           } finally {
             setSubmitting(false);
-          }
+  }
         }}
       >
         {({ isSubmitting, values }) => (
