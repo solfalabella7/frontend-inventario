@@ -11,10 +11,10 @@ const FormCreateArticulo = () => {
     descripcion: '',
     stockActualArticulo: '',
     stockSeguridadArticulo: '',
-    precioUnitario: '',
     demandaAnual: '',
     puntoPedido: '',
     modeloElegido: 'TIEMPO_FIJO',
+    costoAlmacenamiento: '',
     desviacionEstandar: ''
   };
 
@@ -23,10 +23,11 @@ const FormCreateArticulo = () => {
     descripcion: Yup.string().max(150, 'Descripcion demasiada larga'),
     stockActualArticulo: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     stockSeguridadArticulo: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    precioUnitario: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     demandaAnual: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     puntoPedido:  Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    modeloElegido: Yup.string().oneOf(['TIEMPO_FIJO', 'LOTE_FIJO']).required('Modelo requerido')
+    modeloElegido: Yup.string().oneOf(['TIEMPO_FIJO', 'LOTE_FIJO']).required('Modelo requerido'),
+    desviacionEstandar: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    costoAlmacenamiento: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
   });
 
   return (
@@ -42,14 +43,14 @@ const FormCreateArticulo = () => {
             stockSeguridad: parseInt(values.stockSeguridadArticulo),
             puntoPedido: values.puntoPedido,
             fechaHoraBajaArticulo: null,
-            precioUnitario: parseFloat(values.precioUnitario),
-            proveedoresAsignados: [],
-            demoraEntrega: 5,
+           // precioUnitario: parseFloat(values.precioUnitario),
+           // proveedoresAsignados: [],
+           // demoraEntrega: 5,
             //costoPedido: parseFloat(values.costoPedido),
             //costoMantener: parseFloat(values.costoMantener),
             costoAlmacenamiento: parseFloat(values.costoAlmacenamiento),
            // loteOptimo: parseInt(values.loteOptimo),
-            inventarioMax: 5,
+           // inventarioMax: 5,
             modeloElegido: values.modeloElegido,
             demandaAnual: parseInt(values.demandaAnual),
             desviacionEstandar: parseInt (values.desviacionEstandar)
@@ -102,11 +103,7 @@ const FormCreateArticulo = () => {
               <ErrorMessage name="stockSeguridadArticulo" component="div" className="text-danger" />
             </FormBs.Group>
 
-            <FormBs.Group className="mb-3">
-              <label htmlFor='precioUnitario'>Precio Unitario</label>
-              <Field id='precioUnitario' type='number' name='precioUnitario' className='form-control field-input' />
-              <ErrorMessage name="precioUnitario" component="div" className="text-danger" />
-            </FormBs.Group>
+        
 
             <FormBs.Group className="mb-3">
               <label htmlFor='demandaAnual'>Demanda Anual</label>
