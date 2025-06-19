@@ -9,7 +9,11 @@ import axios from '../../service/axios.config';
 
 const CreateOrdenCompra = () => {
   const [articulos, setArticulos] = useState([]);
-  const [proveedores, setProveedores] = useState([]);
+  const [proveedores, setProveedores] = useState([]); //este ya no iria
+  const [proveedorSugerido, setProveedorSugerido] = useState(null);
+  const [proveedoresPorArticulo, setProveedoresPorArticulo] = useState({});
+
+
 
   useEffect(() => {
     axios.get('/articulos')
@@ -20,6 +24,42 @@ const CreateOrdenCompra = () => {
       .then(res => setProveedores(res.data))
       .catch(err => console.error('Error al cargar proveedores:', err));
   }, []);
+
+      const fetchProveedorSugerido = async (codArticulo) => {
+      if (!codArticulo) {
+        setProveedorSugerido(null);
+        return;
+      }
+
+      try {
+        const res = await axios.get(`/ordenCompra/ProvPredeterminado/${codArticulo}`);
+        if (res.status === 200) {
+          setProveedorSugerido(res.data);
+        } else {
+          setProveedorSugerido(null);
+        }
+      } catch (error) {
+        console.error('Error al sugerir proveedor:', error);
+        setProveedorSugerido(null);
+      }
+};
+
+const fetchProveedoresParaArticulo = async (codArticulo, index) => {
+  if (!codArticulo) return;
+
+  try {
+    const res = await axios.get(`/ordenCompra/ProvedoresPorArticulo/${codArticulo}`);
+    if (res.status === 200) {
+      setProveedoresPorArticulo(prev => ({
+        ...prev,
+        [index]: res.data
+      }));
+    }
+  } catch (error) {
+    console.error('Error al traer proveedores por artículo:', error);
+  }
+};
+
 
   const initialValues = {
     nombreOC: '',
@@ -66,7 +106,9 @@ const CreateOrdenCompra = () => {
   }
         }}
       >
-        {({ isSubmitting, values }) => (
+          {({ isSubmitting, values, setFieldValue }) => {
+  const form = { setFieldValue };
+  return (
           <Form>
             <FormBs.Group className="mb-3">
               <label htmlFor="nombreOC">Nombre de Orden</label>
@@ -74,16 +116,6 @@ const CreateOrdenCompra = () => {
               <ErrorMessage name="nombreOC" component="div" className="text-danger" />
             </FormBs.Group>
 
-            <FormBs.Group className="mb-3">
-              <label htmlFor="codProveedor">Proveedor</label>
-              <Field as="select" id="codProveedor" name="codProveedor" className="form-control">
-                <option value=''>-- Seleccionar proveedor --</option>
-                {proveedores.map(p => (
-                  <option key={p.codigoProveedor} value={p.codigoProveedor}>{p.nombreProveedor}</option>
-                ))}
-              </Field>
-              <ErrorMessage name="codProveedor" component="div" className="text-danger" />
-            </FormBs.Group>
 
             <FormBs.Group className="mb-3">
               <FormBs.Label>Estado</FormBs.Label>
@@ -97,12 +129,50 @@ const CreateOrdenCompra = () => {
                   {values.detallesOC.map((_, index) => (
                     <div key={index} className="row mb-2">
                       <div className="col-md-6">
-                        <Field as="select" name={`detallesOC[${index}].codArticulo`} className="form-control">
+                       
+                        <Field
+                          as="select"
+                          name={`detallesOC[${index}].codArticulo`}
+                          className="form-control"
+                          onChange={(e) => {
+                            const selectedValue = e.target.value;
+                            form.setFieldValue(`detallesOC[${index}].codArticulo`, selectedValue);
+                            fetchProveedorSugerido(selectedValue); // si lo seguís usando
+                            fetchProveedoresParaArticulo(selectedValue, index); // ¡este es el nuevo!
+                          }}
+                        >
                           <option value=''>-- Seleccionar artículo --</option>
                           {articulos.map(a => (
                             <option key={a.codigoArticulo} value={a.codigoArticulo}>{a.nombreArticulo}</option>
                           ))}
                         </Field>
+
+                          {proveedorSugerido && (
+                            <div className="text-success mt-1">
+                              🔍 Sugerencia: <strong>{proveedorSugerido.nombreProveedorPredeterminado}</strong>
+                            </div>
+                          )}
+
+
+                          {proveedoresPorArticulo[index] && (
+                              <div className="mt-2">
+                                <label>Proveedor para este artículo</label>
+                                <Field
+                                  as="select"
+                                  name={`detallesOC[${index}].codProveedor`}
+                                  className="form-control"
+                                >
+                                  <option value=''>-- Seleccionar proveedor --</option>
+                                  {proveedoresPorArticulo[index].map(p => (
+                                    <option key={p.nombreProveedorPredeterminado} value={p.nombreProveedorPredeterminado}>
+                                      {p.nombreProveedorPredeterminado}
+                                    </option>
+                                  ))}
+                                </Field>
+                              </div>
+                            )}
+
+
                         <ErrorMessage name={`detallesOC[${index}].codArticulo`} component="div" className="text-danger" />
                       </div>
                       <div className="col-md-4">
@@ -121,12 +191,15 @@ const CreateOrdenCompra = () => {
 
             <Button type="submit" disabled={isSubmitting} className="mt-3">Crear Orden</Button>
           </Form>
-        )}
+        );
+      }}
       </Formik>
 
    
     </div>
+    
   );
+  
 };
 
 export default CreateOrdenCompra;
