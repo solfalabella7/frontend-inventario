@@ -12,6 +12,8 @@ import ListaOrdenCompra from "../components/OrdenCompra/ListaOrdenCompra";
 import ListaProveedores from "../components/Proveedores/ListaProveedores";
 import CreateProveedor from "../components/Proveedores/CreateProveedor"
 import EditarProveedor from "../components/Proveedores/EditarProveedor";
+import CreateVenta from "../components/Ventas/CreateVenta";
+import ListaVentas from "../components/Ventas/ListaVentas.jsx";
 
 const AppRoutes = () => {
   return (
@@ -41,7 +43,10 @@ const AppRoutes = () => {
       </Route>
 
 
-      <Route path="/ventas" element={<Ventas />} />
+      <Route path="/ventas/*" element={<Ventas />} >
+        <Route index element={<ListaVentas />} />
+        <Route path="crear" element={<CreateVenta />} />  
+      </Route>
     </Routes>
   );
 };
