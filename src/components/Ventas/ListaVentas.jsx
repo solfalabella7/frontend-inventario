@@ -25,9 +25,15 @@ const ListaVentas = () => {
   };
 
   const verDetalleVenta = async (venta) => {
-    try {
-      const response = await axios.get(`/ventas/${venta.nroVenta}`);
-      setVentaSeleccionada(venta);
+  try {
+    const response = await axios.get(`/ventas/verDetalle/${venta.nroVenta}`);
+    console.log('Detalle de venta recibido:', response.data);
+      setVentaSeleccionada({
+      nroVenta: venta.nroVenta,
+      nombreCliente: response.data.nombreCliente,
+      apellidoCliente: response.data.apellidoCliente,
+      dniCliente: response.data.dniCliente,
+      });
       setDetalleVenta(response.data.articulos || []);
       setShowModal(true);
     } catch (err) {
@@ -111,14 +117,14 @@ const ListaVentas = () => {
               </thead>
               <tbody>
                 {detalleVenta.map((art, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{art.articulo?.nombreArticulo || 'N/A'}</td>
-                    <td>{art.articulo?.codigoArticulo}</td>
-                    <td>{art.cantidadVA}</td>
-                  </tr>
-                ))}
-              </tbody>
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{art.nombreArticulo}</td> {/* Podés reemplazar por el nombre si luego lo agregás al DTO */}
+                <td>{art.codigoArticulo}</td>
+                <td>{art.cantidadVA}</td>
+              </tr>
+            ))}
+            </tbody>
             </Table>
           )}
         </Modal.Body>
