@@ -4,6 +4,8 @@ import * as Yup from 'yup';
 import Button from 'react-bootstrap/Button';
 import FormBs from 'react-bootstrap/Form';
 import axios from '../../service/axios.config';
+import { Alert } from 'react-bootstrap';
+
 
 const CreateOrdenCompra = () => {
   const [articulos, setArticulos] = useState([]);
@@ -11,6 +13,8 @@ const CreateOrdenCompra = () => {
   const [articulosPermitidos, setArticulosPermitidos] = useState([]);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState('');
   const [proveedorSugeridoPorArticulo, setProveedorSugeridoPorArticulo] = useState({});
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     axios.get('/articulos')
@@ -54,6 +58,17 @@ const CreateOrdenCompra = () => {
   return (
     <div className="container">
       <h3 className="my-3">Crear Orden de Compra</h3>
+      {error && (
+        <Alert variant="danger" onClose={() => setError(null)} dismissible>
+          {error}
+        </Alert>
+      )}
+
+      {success && (
+        <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
+          {success}
+        </Alert>
+      )}
       <Formik
         initialValues={{
           nombreOC: '',
@@ -74,14 +89,14 @@ const CreateOrdenCompra = () => {
             };
 
             const res = await axios.post('/ordenCompra', payload);
-            alert('✅ Orden creada exitosamente.');
+            setSuccess('✅ Orden creada exitosamente.');
             resetForm();
             setProveedorSeleccionado('');
             setArticulosPermitidos([]);
             setProveedorSugeridoPorArticulo({});
           } catch (error) {
             console.error('Error al crear orden:', error);
-            alert('❌ Error al crear la orden');
+            setError('❌ Error al crear la orden');
           } finally {
             setSubmitting(false);
           }
