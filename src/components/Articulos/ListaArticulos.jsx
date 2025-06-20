@@ -180,7 +180,7 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                         <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)} disabled={!!articulo.fechaHoraBajaArticulo}>
                           ✏️
                         </Button>
-                        <Button
+                        {/*<Button
                           variant="danger"
                           size="sm"
                           onClick={async () => {
@@ -200,7 +200,14 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                           title={articulo.fechaHoraBajaArticulo ? "Este artículo ya está dado de baja" : "Eliminar artículo"}
                         >
                           🗑️
-                        </Button>
+                        </Button>*/}
+
+                        <EliminarArticulo
+                          codigoArticulo={articulo.codigoArticulo}
+                          nombreArticulo={articulo.nombreArticulo}
+                          onDeleteSuccess={cargarArticulos}
+                          disabled={!!articulo.fechaHoraBajaArticulo}
+                        />
                       </>
                     )}
                   </td>
