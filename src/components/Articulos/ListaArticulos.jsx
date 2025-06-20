@@ -4,6 +4,7 @@ import axios from '../../service/axios.config';
 import EliminarArticulo from './EliminarArticulo';
 import ModificarArticulo from './ModificarArticulo';
 import { Modal, Button, Dropdown } from 'react-bootstrap';
+import ProveedoresPorArticulo from './ProveedoresPorArticulo';
 
 const ListaArticulos = ({ filtro = 'todos' }) => {
   const [articulos, setArticulos] = useState([]);
@@ -13,6 +14,13 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [articuloAEditar, setArticuloAEditar] = useState(null);
   const [proveedores, setProveedores] = useState({});
+  const [proveedoresDetalle, setProveedoresDetalle] = useState([]); //prov por articulo
+  const [modalProveedoresVisible, setModalProveedoresVisible] = useState(false);
+  const [proveedoresModal, setProveedoresModal] = useState([]);
+  const [articuloEnModal, setArticuloEnModal] = useState(null);
+  const [loadingProveedores, setLoadingProveedores] = useState(false);
+
+
 
   useEffect(() => {
     cargarArticulos();
@@ -91,22 +99,44 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
       console.error('Error al obtener detalle del artículo para edición', error);
     }
   };
+//para tabla proveedores
+  const verProveedoresEnModal = async (articulo) => {
+  setLoadingProveedores(true);
+  setArticuloEnModal(articulo);
+  setModalProveedoresVisible(true);
+  try {
+    const res = await axios.get(`/articulos/${articulo.codigoArticulo}/proveedoresPorArticulo`);
+    setProveedoresModal(res.data);
+  } catch (error) {
+    console.error("Error al cargar proveedores del artículo:", error);
+    setProveedoresModal([]);
+  } finally {
+    setLoadingProveedores(false);
+  }
+};
 
-  const cargarProveedores = async (codigoArticulo) => {
-    try {
-      const respuesta = await axios.get(`/articulos/${codigoArticulo}/proveedores`);
-      setProveedores(prev => ({
-        ...prev,
-        [codigoArticulo]: respuesta.data
-      }));
-    } catch (err) {
-      console.error('Error al obtener proveedores:', err);
-      setProveedores(prev => ({
-        ...prev,
-        [codigoArticulo]: [{ nombre: 'Error al cargar' }]
-      }));
-    }
+//para cambiar el predeterminado
+const cambiarProveedorPredeterminado = async (proveedor) => {
+  if (!articuloEnModal) return;
+
+  const dto = {
+    codigoArticulo: articuloEnModal.codigoArticulo,
+    codProveedor: proveedor.codProveedor,
+    nombreProveedor: proveedor.nombreProveedor  // ✅ opcional, solo si lo usás en el backend
   };
+
+  try {
+    await axios.put('/articulos/cambiar/predeterminado', dto);
+
+    const res = await axios.get(`/articulos/${articuloEnModal.codigoArticulo}/proveedoresPorArticulo`);
+    setProveedoresModal(res.data);
+  } catch (error) {
+    console.error("Error al cambiar proveedor predeterminado:", error);
+    alert("❌ No se pudo cambiar el proveedor predeterminado.");
+  }
+};
+
+
 
   return (
     <div className='container'>
@@ -149,28 +179,14 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
                       ? new Date(articulo.fechaHoraBajaArticulo).toLocaleString('es-AR')
                       : '-'}
                   </td>
-                  {filtro === 'todos' && (
-                    <td>
-                      <Dropdown>
-                        <Dropdown.Toggle variant="outline-primary" size="sm">
-                          Proveedores
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                          {proveedores[articulo.codigoArticulo] ? (
-                            proveedores[articulo.codigoArticulo].map((proveedor, index) => (
-                              <Dropdown.Item key={index}>
-                                {proveedor.nombre || `Proveedor ${index + 1}`}
-                              </Dropdown.Item>
-                            ))
-                          ) : (
-                            <Dropdown.Item onClick={() => cargarProveedores(articulo.codigoArticulo)}>
-                              Cargar proveedores
-                            </Dropdown.Item>
-                          )}
-                        </Dropdown.Menu>
-                      </Dropdown>
+                 
+                    <td className="text-center">
+                      <Button variant="outline-primary" size="sm" onClick={() => verProveedoresEnModal(articulo)}>
+                        Ver Proveedores
+                      </Button>
                     </td>
-                  )}
+
+                  
                   <td className="text-center d-flex gap-2 justify-content-center">
                     <Button variant="info" size="sm" onClick={() => abrirModalDetalle(articulo.codigoArticulo)}>
                       Detalles
@@ -255,6 +271,17 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
           }}
         />
       )}
+    <ProveedoresPorArticulo
+      show={modalProveedoresVisible}
+      handleClose={() => setModalProveedoresVisible(false)}
+      articulo={articuloEnModal}
+      proveedores={proveedoresModal}
+      loading={loadingProveedores}
+      onCambiarPredeterminado={cambiarProveedorPredeterminado}
+    />
+
+
+
     </div>
   );
 };
