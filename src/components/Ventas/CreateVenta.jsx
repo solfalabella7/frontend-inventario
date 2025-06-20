@@ -71,7 +71,7 @@ const CreateVenta = () => {
         }
 
         const ventaData = {
-            DNIcliente: Number(cliente.dni),
+            dniCliente: Number(cliente.dni),
             nombreCliente: cliente.nombre,
             apellidoCliente: cliente.apellido,
             articulos: listaArticulos.map((a) => ({

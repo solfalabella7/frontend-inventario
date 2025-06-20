@@ -33,3 +33,4 @@ const EliminarArticulo = ({ codigoArticulo, onDeleteSuccess }) => {
 };
 
 export default EliminarArticulo;
+

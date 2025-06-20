@@ -178,9 +178,10 @@ if (Array.isArray(respuesta.data)) {
                               await axios.delete(`/articulos/${articulo.codigoArticulo}`);
                               alert('✅ Artículo eliminado');
                               cargarArticulos();
-                            } catch (err) {
+                            } catch (err) {                                                            
                               console.error('Error al eliminar artículo:', err);
-                              alert('❌ No se pudo eliminar el artículo');
+                              const mensaje = err.response?.data || "No se pudo eliminar el artículo";
+                              alert(`❌ ${mensaje}`);
                             }
                           }}
                           disabled={!!articulo.fechaHoraBajaArticulo}
