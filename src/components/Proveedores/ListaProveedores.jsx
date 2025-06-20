@@ -146,7 +146,7 @@ const ListaProveedores = () => {
                                             variant="outline-primary"
                                             size="sm"
                                             onClick={() => verArticulosProveedor(proveedor.codigoProveedor)}
-                                            disabled={!!proveedor.fechaHoraBajaProveedor}
+                                            disabled={!proveedor.activo}
                                         >
                                             <FaEye className="me-1" /> Ver
                                         </Button>
@@ -155,7 +155,7 @@ const ListaProveedores = () => {
                                         <div className="d-flex gap-2 justify-content-center">
                                             <Link
                                                 to={`/proveedores/editar/${proveedor.codigoProveedor}`}
-                                                className={`btn btn-sm btn-warning ${proveedor.fechaHoraBajaProveedor ? 'disabled' : ''}`}
+                                                className={`btn btn-sm btn-warning ${!proveedor.activo ? 'disabled' : ''}`}
                                             >
                                                 <FaEdit />
                                             </Link>
@@ -163,16 +163,9 @@ const ListaProveedores = () => {
                                                 codigoProveedor={proveedor.codigoProveedor}
                                                 nombreProveedor={proveedor.nombreProveedor}
                                                 onDeleteSuccess={cargarProveedores}
-                                                disabled={!!proveedor.fechaHoraBajaProveedor}
+                                                disabled={!proveedor.activo}
                                             />
-                                            {/*<Button
-                                                variant="danger"
-                                                size="sm"
-                                                onClick={() => handleDeleteClick(proveedor)}
-                                                disabled={!!proveedor.fechaHoraBajaProveedor}
-                                            >
-                                            <FaTrash />
-                                            </Button>*/}
+                                            
                                         </div>
                                     </td>
                                 </tr>
