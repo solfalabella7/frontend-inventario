@@ -165,13 +165,29 @@ if (Array.isArray(respuesta.data)) {
                     </Button>
                     {filtro === 'todos' && (
                       <>
-                        <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)}>
+                        <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)} disabled={!!articulo.fechaHoraBajaArticulo}>
                           ✏️
                         </Button>
-                        <EliminarArticulo
-                          codigoArticulo={articulo.codigoArticulo}
-                          onDeleteSuccess={cargarArticulos}
-                        />
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={async () => {
+                            if (!window.confirm('¿Estás seguro de que querés eliminar este artículo?')) return;
+
+                            try {
+                              await axios.delete(`/articulos/${articulo.codigoArticulo}`);
+                              alert('✅ Artículo eliminado');
+                              cargarArticulos();
+                            } catch (err) {
+                              console.error('Error al eliminar artículo:', err);
+                              alert('❌ No se pudo eliminar el artículo');
+                            }
+                          }}
+                          disabled={!!articulo.fechaHoraBajaArticulo}
+                          title={articulo.fechaHoraBajaArticulo ? "Este artículo ya está dado de baja" : "Eliminar artículo"}
+                        >
+                          🗑️
+                        </Button>
                       </>
                     )}
                   </td>
@@ -212,7 +228,7 @@ if (Array.isArray(respuesta.data)) {
       {articuloAEditar && (
         <ModificarArticulo
           articulo={articuloAEditar}
-          onCancel={() => setArticuloAEditar(null)}
+          onCancel={() => setArticuloAEditar(null)} 
           onUpdateSuccess={() => {
             setArticuloAEditar(null);
             cargarArticulos();
