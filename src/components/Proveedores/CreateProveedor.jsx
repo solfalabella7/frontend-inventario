@@ -18,7 +18,8 @@ const CreateProveedor = ({ onSuccess }) => {
     codigoArticulo: '',
     precioUnitProveedorArticulo: '',
     demoraEntrega: '',
-    esPredeterminado: false
+    esPredeterminado: false,
+    nivelDeServicio: '',
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -38,7 +39,7 @@ const CreateProveedor = ({ onSuccess }) => {
 
   const initialValues = {
     nombreProveedor: '',
-    
+
   };
 
   const validationSchema = Yup.object().shape({
@@ -65,7 +66,8 @@ const CreateProveedor = ({ onSuccess }) => {
       codigoArticulo: '',
       precioUnitProveedorArticulo: '',
       demoraEntrega: '',
-      esPredeterminado: false
+      esPredeterminado: false,
+      nivelDeServicio: '',
     });
     setError(null);
   };
@@ -88,14 +90,14 @@ const CreateProveedor = ({ onSuccess }) => {
         nombreProveedor: values.nombreProveedor,
         asociaciones: asociaciones
       };
-      
-    console.log("DTO enviado al backend:", proveedorData); 
+
+      console.log("DTO enviado al backend:", proveedorData);
       const response = await api.post('/proveedores', proveedorData);
-      
+
       setSuccess(`Proveedor "${response.data.nombreProveedor}" creado exitosamente con ${asociaciones.length} artículo(s) asociado(s)`);
       resetForm();
       setAsociaciones([]);
-      
+
       if (onSuccess) {
         onSuccess();
       }
@@ -110,7 +112,7 @@ const CreateProveedor = ({ onSuccess }) => {
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Crear Nuevo Proveedor</h2>
-      
+
       {error && <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>}
       {success && <Alert variant="success" onClose={() => setSuccess(null)} dismissible>{success}</Alert>}
 
@@ -135,7 +137,7 @@ const CreateProveedor = ({ onSuccess }) => {
 
             <div className="border p-3 mb-4 rounded bg-light">
               <h5 className="mb-3">Asociar Artículos *</h5>
-              
+
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Artículo</FormBs.Label>
                 <FormBs.Select
@@ -168,25 +170,42 @@ const CreateProveedor = ({ onSuccess }) => {
                 />
               </FormBs.Group>
 
-             <FormBs.Group className="mb-3">
-              <label htmlFor='costoPedido'>Costo de Pedido</label>
-              <Field id='costoPedido' type='number' name='costoPedido' className='form-control field-input' />
-              <ErrorMessage name="costoPedido" component="div" className="text-danger" />
-            </FormBs.Group> 
+              <FormBs.Group className="mb-3">
+                <label htmlFor='costoPedido'>Costo de Pedido</label>
+                <Field id='costoPedido' type='number' name='costoPedido' className='form-control field-input' />
+                <ErrorMessage name="costoPedido" component="div" className="text-danger" />
+              </FormBs.Group>
 
-            <FormBs.Group className="mb-3">
-              <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
-              <Field id='costoMantener' type='number' name='costoMantener' className='form-control field-input' />
-              <ErrorMessage name="costoMantener" component="div" className="text-danger" />
-            </FormBs.Group>
-            
-            <FormBs.Group className="mb-3">
-              <label htmlFor='loteOptimo'>Lote Optimo</label>
-              <Field id='loteOptimo' type='number' name='loteOptimo' className='form-control field-input' />
-              <ErrorMessage name="loteOptimo" component="div" className="text-danger" />
-            </FormBs.Group>
-            
-            
+              <FormBs.Group className="mb-3">
+                <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
+                <Field id='costoMantener' type='number' name='costoMantener' className='form-control field-input' />
+                <ErrorMessage name="costoMantener" component="div" className="text-danger" />
+              </FormBs.Group>
+
+              <FormBs.Group className="mb-3">
+                <label htmlFor='loteOptimo'>Lote Optimo</label>
+                <Field id='loteOptimo' type='number' name='loteOptimo' className='form-control field-input' />
+                <ErrorMessage name="loteOptimo" component="div" className="text-danger" />
+              </FormBs.Group>
+
+              <FormBs.Group className="mb-3">
+                <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
+                <FormBs.Control
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={currentAsociacion.nivelDeServicio}
+                  onChange={(e) =>
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      nivelDeServicio: e.target.value !== '' ? parseFloat(e.target.value) : ''
+                    })
+                  }
+                />
+              </FormBs.Group>
+
+
+
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Demora de Entrega (días)</FormBs.Label>
@@ -227,16 +246,17 @@ const CreateProveedor = ({ onSuccess }) => {
                 <h6>Artículos asociados:</h6>
                 <ListGroup>
                   {asociaciones.map((asoc, index) => {
-                   // const articulo = articulos.find(a => a.codigoArticulo === asoc.codigoArticulo);
-                   const articulo = articulos.find(a => String(a.codigoArticulo) === String(asoc.codigoArticulo));
-                   return (
+                    // const articulo = articulos.find(a => a.codigoArticulo === asoc.codigoArticulo);
+                    const articulo = articulos.find(a => String(a.codigoArticulo) === String(asoc.codigoArticulo));
+                    return (
                       <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
                         <div>
                           <strong>{articulo?.nombreArticulo}</strong>
                           <div className="text-muted">Código: {asoc.codigoArticulo}</div>
                           <div>Precio: ${asoc.precioUnitProveedorArticulo.toFixed(2)}</div>
                           <div>Demora: {asoc.demoraEntrega} días</div>
-                          {asoc.esPredeterminado && 
+                          <div>Nivel de Servicio: {asoc.nivelDeServicio}%</div>
+                          {asoc.esPredeterminado &&
                             <Badge bg="primary" className="mt-1">Predeterminado</Badge>}
                         </div>
                         <Button
