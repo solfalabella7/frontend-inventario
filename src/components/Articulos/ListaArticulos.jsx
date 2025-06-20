@@ -18,34 +18,46 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
     cargarArticulos();
   }, [filtro]);
 
-  const cargarArticulos = async () => {
+  if (loading) {
+    return <div className="text-center my-5">Cargando artículos...</div>;
+  }
+
+  const cargarArticulos = async ( intento = 1 ) => {
     setLoading(true);
+    setError("");
     try {
       let endpoint = '/articulos';
       if (filtro === 'faltantes') endpoint = '/articulos/articulosFaltantes';
       if (filtro === 'reponer') endpoint = '/articulos/articulosReponer';
 
-    const respuesta = await axios.get(endpoint);
-console.log("Respuesta del backend:", respuesta.data);
+      const respuesta = await axios.get(endpoint);
+      console.log("Respuesta del backend:", respuesta.data);
 
-if (Array.isArray(respuesta.data)) {
-  const articulosOrdenados = respuesta.data.sort((a, b) => {
-    if (a.fechaHoraBajaArticulo && !b.fechaHoraBajaArticulo) return 1;
-    if (!a.fechaHoraBajaArticulo && b.fechaHoraBajaArticulo) return -1;
-    return 0;
-  });
+      if (Array.isArray(respuesta.data)) {
+        const articulosOrdenados = respuesta.data.sort((a, b) => {
+          if (a.fechaHoraBajaArticulo && !b.fechaHoraBajaArticulo) return 1;
+          if (!a.fechaHoraBajaArticulo && b.fechaHoraBajaArticulo) return -1;
+          return 0;
+        });
 
-  setArticulos(articulosOrdenados);
-  setError(null);
-} else {
-  console.warn("La respuesta del backend no es un array:", respuesta.data);
-  setArticulos([]);
-  setError("No se pudo obtener una lista válida de artículos.");
-}
+        setArticulos(articulosOrdenados);
+        setError(null);
+      } else {
+        console.warn("La respuesta del backend no es un array:", respuesta.data);
+        setArticulos([]);
+        setError("No se pudo obtener una lista válida de artículos.");
+      }
 
     } catch (err) {
-      console.error('Error al obtener artículos:', err);
-      setError('No se pudieron cargar los artículos.');
+      if (intento < 3) {
+        // 🔁 Reintenta si falla (hasta 3 veces)
+        console.warn(`Reintentando cargar artículos... intento ${intento + 1}`);
+        setTimeout(() => cargarArticulos(intento + 1), 1000); // espera 1s
+      } else {
+        setError("Error al cargar los artículos. Intente más tarde.");
+        console.error(err);
+      }
+      
       setArticulos([]);
     } finally {
       setLoading(false);
@@ -68,17 +80,17 @@ if (Array.isArray(respuesta.data)) {
   };
 
   const handleEditar = async (articulo) => {
-  try {
-    const res = await axios.get(`/articulos/${articulo.codigoArticulo}/detalle`);
-    const articuloConCodigo = {
-      ...res.data,
-      codigoArticulo: articulo.codigoArticulo, // <- Lo agregás manualmente
-    };
-    setArticuloAEditar(articuloConCodigo);
-  } catch (error) {
-    console.error('Error al obtener detalle del artículo para edición', error);
-  }
-};
+    try {
+      const res = await axios.get(`/articulos/${articulo.codigoArticulo}/detalle`);
+      const articuloConCodigo = {
+        ...res.data,
+        codigoArticulo: articulo.codigoArticulo, // <- Lo agregás manualmente
+      };
+      setArticuloAEditar(articuloConCodigo);
+    } catch (error) {
+      console.error('Error al obtener detalle del artículo para edición', error);
+    }
+  };
 
   const cargarProveedores = async (codigoArticulo) => {
     try {
@@ -178,7 +190,7 @@ if (Array.isArray(respuesta.data)) {
                               await axios.delete(`/articulos/${articulo.codigoArticulo}`);
                               alert('✅ Artículo eliminado');
                               cargarArticulos();
-                            } catch (err) {                                                            
+                            } catch (err) {
                               console.error('Error al eliminar artículo:', err);
                               const mensaje = err.response?.data || "No se pudo eliminar el artículo";
                               alert(`❌ ${mensaje}`);
@@ -206,16 +218,16 @@ if (Array.isArray(respuesta.data)) {
         <Modal.Body>
           {articuloDetalle ? (
             <ul className="list-group">
-              
 
-      <li className="list-group-item">Nombre: {articuloDetalle.nombreArticulo}</li>
-      <li className="list-group-item">Descripción: {articuloDetalle.descripcion}</li>
-      <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
-      <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
-      <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
-      <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
-      
-      
+
+              <li className="list-group-item">Nombre: {articuloDetalle.nombreArticulo}</li>
+              <li className="list-group-item">Descripción: {articuloDetalle.descripcion}</li>
+              <li className="list-group-item">Demanda Anual: {articuloDetalle.demandaAnual}</li>
+              <li className="list-group-item">Costo Almacenamiento: ${articuloDetalle.costoAlmacenamiento}</li>
+              <li className="list-group-item">Modelo: {articuloDetalle.modeloElegido}</li>
+              <li className="list-group-item">Punto de Pedido: {articuloDetalle.puntoPedido}</li>
+
+
             </ul>
           ) : (
             <p>No se encontró información del artículo.</p>
@@ -229,7 +241,7 @@ if (Array.isArray(respuesta.data)) {
       {articuloAEditar && (
         <ModificarArticulo
           articulo={articuloAEditar}
-          onCancel={() => setArticuloAEditar(null)} 
+          onCancel={() => setArticuloAEditar(null)}
           onUpdateSuccess={() => {
             setArticuloAEditar(null);
             cargarArticulos();
