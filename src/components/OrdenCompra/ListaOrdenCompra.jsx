@@ -1,30 +1,65 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../service/axios.config';
-import Button from 'react-bootstrap/Button';
-import Table from 'react-bootstrap/Table';
-import { Modal } from 'react-bootstrap';
-import ModificarOrdenCompra  from './ModificarOrdenCompra'; 
+import {
+  Table,
+  Button,
+  Modal,
+  Spinner,
+} from 'react-bootstrap';
+import ModificarOrdenCompra from './ModificarOrdenCompra';
+import CancelarOC from './CancelarOC';
+import EnviarOC from './EnviarOC';
+import FinalizarOC from './FinalizarOC';
 
 const ListaOrdenesCompra = () => {
   const [ordenes, setOrdenes] = useState([]);
   const [error, setError] = useState(null);
   const [detalleVisible, setDetalleVisible] = useState(false);
   const [detalle, setDetalle] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const [ordenCompraToCancel, setOrdenCompraToCancel] = useState(null);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [ordenCompraToSend, setOrdenCompraToSend] = useState(null);
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [finishing, setFinishing] = useState(false);
+  const [ordenCompraToFinish, setOrdenCompraToFinish] = useState(null);
+  const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
+  const [ordenSeleccionada, setOrdenSeleccionada] = useState(null);
+
+
 
 
   useEffect(() => {
     cargarOrdenes();
   }, []);
 
-  const cargarOrdenes = async () => {
-  try {
-    const response = await axios.get('/ordenCompra');
-    setOrdenes(response.data);
-  } catch (err) {
-    console.error(err);
-    setError('No se pudieron cargar las órdenes de compra.');
+  if (loading) {
+    return <div className="text-center my-5">Cargando artículos...</div>;
   }
-};
+
+
+  const cargarOrdenes = async ( intento = 1 ) => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await axios.get('/ordenCompra');
+      setOrdenes(response.data);
+    } catch (err) {
+      if (intento < 3) {
+        // 🔁 Reintenta si falla (hasta 3 veces)
+        console.warn(`Reintentando cargar órdenes... intento ${intento + 1}`);
+        setTimeout(() => cargarOrdenes(intento + 1), 1000); // espera 1s
+      } else {
+        setError("Error al cargar las órdenes. Intente más tarde.");
+        console.error(err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const verDetalle = async (nro) => {
@@ -43,78 +78,99 @@ const ListaOrdenesCompra = () => {
     setDetalle(null);
   };
 
-  const cancelarOC = async (nro) => {
-    if (window.confirm('¿Estás seguro de que querés cancelar esta orden?')) {
-      try {
-        await axios.put(`/ordenCompra/${nro}/cancelar`);
-        cargarOrdenes();
-      } catch (err) {
-        console.error(err);
-        alert('Error al cancelar la orden de compra');
+  const finalizarOrden = async (nro) => {
+    try {
+      const response = await axios.put(`/ordenCompra/${nro}/finalizar`);
+      const { ordenCompra, alertar } = response.data;
+
+      // actualizar la lista local
+      setOrdenes(ordenes.map(o => o.nroOrdenCompra === nro ? ordenCompra : o));
+
+      if (alertar) {
+        alert("⚠️ El stock total de uno o más artículos aún no alcanza el punto de pedido tras finalizar la OC.");
+      } else {
+        alert("✅ Orden finalizada correctamente.");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Error al finalizar la orden: " + (err.response?.data || err.message));
     }
   };
 
-const enviarOrden = async (nro) => {
-  try {
-    await axios.put(`/ordenCompra/${nro}/enviar`); 
-    // Refrescar lista
-    cargarOrdenes(); // <- vuelve a pedir todas las órdenes para ver el nuevo estado
-    alert('Orden enviada exitosamente ✅');
-  } catch (err) {
-    console.error(err);
-    alert('Error al enviar la orden: ' + (err.response?.data || err.message));
-  }
-};
 
-const finalizarOrden = async (nro) => {
-  try {
-    const response = await axios.put(`/ordenCompra/${nro}/finalizar`);
-    const { ordenCompra, alertar } = response.data;
-
-    // actualizar la lista local
-    setOrdenes(ordenes.map(o => o.nroOrdenCompra === nro ? ordenCompra : o));
-
-    if (alertar) {
-      alert("⚠️ El stock total de uno o más artículos aún no alcanza el punto de pedido tras finalizar la OC.");
-    } else {
-      alert("✅ Orden finalizada correctamente.");
+  const confirmarCancelar = async () => {
+    if (!ordenCompraToCancel) return;
+    setCanceling(true);
+    try {
+      await axios.put(`/ordenCompra/${nro}/cancelar`);
+      cargarOrdenes();
+      setShowCancelModal(false);
+    } catch (err) {
+      console.error("Error al cancelar la orden de compra:", err);
+      setError(err.response?.data?.message || 'No se pudo cancelar la orden');
+    } finally {
+      setCanceling(false);
     }
-  } catch (err) {
-    console.error(err);
-    alert("Error al finalizar la orden: " + (err.response?.data || err.message));
   }
-};
 
-
-  const [mostrarModalModificar, setMostrarModalModificar] = useState(false);
-    const [ordenSeleccionada, setOrdenSeleccionada] = useState(null);
-
-    const modificarOC = async (nro) => {
-     try {
-    const response = await axios.get(`/ordenCompra/${nro}/datos`);
-    const datosCompletos = response.data;
-    setOrdenSeleccionada(datosCompletos);
-    setMostrarModalModificar(true);
-  } catch (error) {
-    console.error("Error al cargar datos completos de la orden:", error);
-    alert("No se pudieron obtener los datos para modificar.");
+  const confirmarEnviar = async () => {
+    if (!ordenCompraToSend) return;
+    setSending(true);
+    try {
+      await axios.put(`/ordenCompra/${nro}/enviar`);
+      cargarOrdenes();
+      setShowSendModal(false);
+    } catch (err) {
+      console.error("Error al enviar la orden de compra:", err);
+      setError(err.response?.data?.message || 'No se pudo enviar la orden');
+    } finally {
+      setSending(false);
+    }
   }
-    };
 
-    const cerrarModalModificar = () => {
-        setMostrarModalModificar(false);
-        setOrdenSeleccionada(null);
-        cargarOrdenes();
-    };
+  const confirmarFinalizar = async () => {
+    if (!ordenCompraToFinalizar) return;
+    setFinishing(true);
+    try {
+      await axios.put(`/ordenCompra/${nro}/finalizar`);
+      cargarOrdenes();
+      setShowFinishModal(false);
+    } catch (err) {
+      console.error("Error al finalizar la orden de compra:", err);
+      setError(err.response?.data?.message || 'No se pudo enviar la orden');
+    } finally {
+      setFinishing(false);
+    }
+  }
 
-    
+
+  
+
+  const modificarOC = async (nro) => {
+    try {
+      const response = await axios.get(`/ordenCompra/${nro}/datos`);
+      const datosCompletos = response.data;
+      setOrdenSeleccionada(datosCompletos);
+      setMostrarModalModificar(true);
+    } catch (error) {
+      console.error("Error al cargar datos completos de la orden:", error);
+      alert("No se pudieron obtener los datos para modificar.");
+    }
+  };
+
+  const cerrarModalModificar = () => {
+    setMostrarModalModificar(false);
+    setOrdenSeleccionada(null);
+    cargarOrdenes();
+  };
+
+
 
   return (
     <div className="container mt-4">
       <h2>Órdenes de Compra</h2>
       {error && <div className="alert alert-danger">{error}</div>}
-      
+
       <Table striped bordered hover>
         <thead className="table-dark">
           <tr>
@@ -159,32 +215,36 @@ const finalizarOrden = async (nro) => {
                         >
                           Modificar
                         </Button>
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => cancelarOC(oc.nroOrdenCompra)}
-                          className="me-2"
-                        >
-                          Cancelar
-                        </Button>
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          onClick={() => enviarOrden(oc.nroOrdenCompra)}
-                        >
-                          Enviar
-                        </Button>
+
+                        <CancelarOC
+                          nroOrdenCompra={oc.nroOrdenCompra}
+                          onDeleteSuccess={cargarOrdenes}
+                        />
+
+                        <EnviarOC
+                          nroOrdenCompra={oc.nroOrdenCompra}
+                          onDeleteSuccess={cargarOrdenes}
+                        />
+
                       </>
                     )}
 
                     {oc.estadoOC === 'ENVIADA' && (
-                      <Button
+                      <>
+                      {/*<Button
                         variant="success"
                         size="sm"
                         onClick={() => finalizarOrden(oc.nroOrdenCompra)}
                       >
                         Finalizar
-                      </Button>
+                      </Button>*/}
+                      <FinalizarOC
+                        nroOrdenCompra={oc.nroOrdenCompra}
+                        onDeleteSuccess={cargarOrdenes}
+                      />
+                      </>
+
+
                     )}
                   </>
                 )}
@@ -195,6 +255,7 @@ const finalizarOrden = async (nro) => {
         </tbody>
       </Table>
 
+      {/* Modal detalle orden de compra */}
       <Modal show={detalleVisible} onHide={cerrarDetalle}>
         <Modal.Header closeButton>
           <Modal.Title>Detalle Orden Compra</Modal.Title>
@@ -220,7 +281,8 @@ const finalizarOrden = async (nro) => {
           ) : <p>Cargando...</p>}
         </Modal.Body>
       </Modal>
-      {/*} {/* Modal Modificar */}
+
+      {/* Modal Modificar */}
       <Modal show={mostrarModalModificar} onHide={cerrarModalModificar} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Modificar Orden de Compra</Modal.Title>
@@ -236,7 +298,98 @@ const finalizarOrden = async (nro) => {
           )}
         </Modal.Body>
       </Modal>
-      
+
+      {/* Modal Cancelar */}
+      <Modal show={showCancelModal} onHide={() => setShowCancelModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar cancelación</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro que desea cancelar la orden de compra nro {ordenCompraToCancel?.nroOrdenCompra}?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowCancelModal(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={confirmarCancelar}
+            disabled={canceling}
+          >
+            {canceling ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Cancelando...
+              </>
+            ) : 'Confirmar'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal Enviar */}
+      <Modal show={showSendModal} onHide={() => setShowSendModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar envío</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro que desea enviar la orden de compra nro {ordenCompraToSend?.nroOrdenCompra}?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowSendModal(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={confirmarEnviar}
+            disabled={sending}
+          >
+            {sending ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Enviando...
+              </>
+            ) : 'Confirmar'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+      {/* Modal Finalizar */}
+      <Modal show={showFinishModal} onHide={() => setShowFinishModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmar finalización</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ¿Está seguro que desea finalizar la orden de compra nro {ordenCompraToFinish?.nroOrdenCompra}?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowFinishModal(false)}
+          >
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={confirmarFinalizar}
+            disabled={finishing}
+          >
+            {finishing ? (
+              <>
+                <Spinner animation="border" size="sm" className="me-2" />
+                Finalizando...
+              </>
+            ) : 'Confirmar'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </div>
   );
 };

@@ -97,7 +97,17 @@ const CreateOrdenCompra = () => {
             setSugerenciaCantidadPorArticulo({});
           } catch (error) {
             console.error('Error al crear orden:', error);
-            setError('❌ Error al crear la orden');
+            const msg = error.response?.data;
+            if (msg?.includes('PENDIENTE')) {
+              setError('El proveedor ya tiene una orden de compra pendiente.');
+              setInfo('Espere a que la orden de compra pendiente finalice.');
+            } else if (msg?.includes('ENVIADA')) {
+              setError('El proveedor ya tiene una orden de compra enviada.');
+              setInfo('Espere a que la orden de compra enviada finalice.');
+            } else {
+                setError(msg || '❌ Error al crear la orden');
+            }
+
           } finally {
             setSubmitting(false);
           }

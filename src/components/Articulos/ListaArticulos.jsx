@@ -24,18 +24,11 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
   const [articuloDetalle, setArticuloDetalle] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [articuloAEditar, setArticuloAEditar] = useState(null);
-  const [proveedores, setProveedores] = useState({});
-  const [proveedoresDetalle, setProveedoresDetalle] = useState([]); //prov por articulo
   const [modalProveedoresVisible, setModalProveedoresVisible] = useState(false);
   const [proveedoresModal, setProveedoresModal] = useState([]);
   const [articuloEnModal, setArticuloEnModal] = useState(null);
   const [loadingProveedores, setLoadingProveedores] = useState(false);
-  const [showModal, setShowModal] = useState(false)
-  const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
-  const [articulosProveedor, setArticulosProveedor] = useState([]);
-  const [loadingArticulos, setLoadingArticulos] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [proveedorToDelete, setProveedorToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [articuloToDelete, setArticuloToDelete] = useState(null);
 
@@ -156,12 +149,6 @@ console.log(dto);
   }
 };
 
-  const handleDeleteClick = (articulo) => {
-    setArticuloToDelete(articulo);
-    setShowDeleteModal(true);
-    setError(null); //Resetear error al abrir el modal
-  };
-
   const confirmarEliminar = async () => {
         if (!articuloToDelete) return;
 
@@ -177,10 +164,6 @@ console.log(dto);
             setDeleting(false);
         }
     };
-
-
-
-
 
   return (
     <div className='container'>

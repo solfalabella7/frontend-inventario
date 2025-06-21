@@ -165,7 +165,6 @@ const ListaProveedores = () => {
                                                 onDeleteSuccess={cargarProveedores}
                                                 disabled={!proveedor.activo}
                                             />
-                                            
                                         </div>
                                     </td>
                                 </tr>
