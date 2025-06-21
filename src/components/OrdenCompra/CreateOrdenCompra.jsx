@@ -6,13 +6,13 @@ import FormBs from 'react-bootstrap/Form';
 import axios from '../../service/axios.config';
 import { Alert } from 'react-bootstrap';
 
-
 const CreateOrdenCompra = () => {
   const [articulos, setArticulos] = useState([]);
   const [proveedores, setProveedores] = useState([]);
   const [articulosPermitidos, setArticulosPermitidos] = useState([]);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState('');
   const [proveedorSugeridoPorArticulo, setProveedorSugeridoPorArticulo] = useState({});
+  const [sugerenciaCantidadPorArticulo, setSugerenciaCantidadPorArticulo] = useState({});
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -94,6 +94,7 @@ const CreateOrdenCompra = () => {
             setProveedorSeleccionado('');
             setArticulosPermitidos([]);
             setProveedorSugeridoPorArticulo({});
+            setSugerenciaCantidadPorArticulo({});
           } catch (error) {
             console.error('Error al crear orden:', error);
             setError('❌ Error al crear la orden');
@@ -122,6 +123,7 @@ const CreateOrdenCompra = () => {
                   setFieldValue('codProveedor', val);
                   setProveedorSeleccionado(val);
                   setProveedorSugeridoPorArticulo({});
+                  setSugerenciaCantidadPorArticulo({});
                   setFieldValue('detallesOC', [{ codArticulo: '', cantidadArticulo: 1 }]);
                   await fetchArticulosPorProveedor(val);
                 }}
@@ -153,22 +155,42 @@ const CreateOrdenCompra = () => {
                             setFieldValue(`detallesOC[${index}].codArticulo`, codArticulo);
 
                             if (codArticulo) {
-                              console.log("✅ Buscando proveedor predeterminado para ID:", codArticulo);
-                  
                               try {
-                                const res = await axios.get(`/ordenCompra/ProvPredeterminado/${codArticulo}`);
-                                if (res.status === 200) {
+                                const resProv = await axios.get(`/ordenCompra/ProvPredeterminado/${codArticulo}`);
+                                console.log(" Respuesta de ProvPredeterminado:", resProv.data);
+
+                                if (resProv.status === 200) {
+                                  const nombreProveedor = resProv.data.nombreProveedorPredeterminado;
+                                  const codProveedor = resProv.data.codigoProveedor;
+
                                   setProveedorSugeridoPorArticulo(prev => ({
                                     ...prev,
-                                    [index]: res.data.nombreProveedorPredeterminado
+                                    [index]: nombreProveedor
                                   }));
+
+                                  setSugerenciaCantidadPorArticulo(prev => ({
+                                    ...prev,
+                                    [index]: '...' // mostrar "..." mientras carga
+                                  }));
+
+                                  const resCant = await axios.get('/ordenCompra/sugerenciaCantidad', {
+                                    params: {
+                                      codArticulo: codArticulo,
+                                      codProveedor: codProveedor
+                                    }
+                                  });
+
+                                  if (resCant.status === 200) {
+                                    setSugerenciaCantidadPorArticulo(prev => ({
+                                      ...prev,
+                                      [index]: resCant.data
+                                    }));
+                                  }
                                 }
                               } catch (error) {
-                                console.error("❌ Error al obtener proveedor predeterminado:", error);
-                                setProveedorSugeridoPorArticulo(prev => ({
-                                  ...prev,
-                                  [index]: null
-                                }));
+                                console.error("❌ Error al obtener sugerencias:", error);
+                                setProveedorSugeridoPorArticulo(prev => ({ ...prev, [index]: null }));
+                                setSugerenciaCantidadPorArticulo(prev => ({ ...prev, [index]: null }));
                               }
                             }
                           }}
@@ -197,6 +219,14 @@ const CreateOrdenCompra = () => {
                           min="1"
                           className="form-control"
                         />
+                        {typeof sugerenciaCantidadPorArticulo[index] === 'number' && (
+                          <small className="text-muted">
+                            Sugerencia: pedir {sugerenciaCantidadPorArticulo[index]} unidades.
+                          </small>
+                        )}
+                        {sugerenciaCantidadPorArticulo[index] === '...' && (
+                          <small className="text-muted">Cargando sugerencia...</small>
+                        )}
                         <ErrorMessage name={`detallesOC[${index}].cantidadArticulo`} component="div" className="text-danger" />
                       </div>
 

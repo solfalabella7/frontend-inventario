@@ -121,10 +121,11 @@ const cambiarProveedorPredeterminado = async (proveedor) => {
 
   const dto = {
     codigoArticulo: articuloEnModal.codigoArticulo,
-    codProveedor: proveedor.codProveedor,
+    //codProveedor: proveedor.codProveedor,
+    codProveedorArticulo: proveedor.codProveedorArticulo,
     nombreProveedor: proveedor.nombreProveedor  // ✅ opcional, solo si lo usás en el backend
   };
-
+console.log(dto);
   try {
     await axios.put('/articulos/cambiar/predeterminado', dto);
 
