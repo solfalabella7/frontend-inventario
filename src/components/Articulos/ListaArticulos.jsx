@@ -3,8 +3,19 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../service/axios.config';
 import EliminarArticulo from './EliminarArticulo';
 import ModificarArticulo from './ModificarArticulo';
-import { Modal, Button, Dropdown } from 'react-bootstrap';
+import {
+    Table,
+    Button,
+    Modal,
+    Badge,
+    Alert,
+    Spinner,
+    Dropdown,
+    ListGroup
+} from 'react-bootstrap';
 import ProveedoresPorArticulo from './ProveedoresPorArticulo';
+import { FaEdit, FaTrash, FaEye, FaPlus } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const ListaArticulos = ({ filtro = 'todos' }) => {
   const [articulos, setArticulos] = useState([]);
@@ -19,7 +30,14 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
   const [proveedoresModal, setProveedoresModal] = useState([]);
   const [articuloEnModal, setArticuloEnModal] = useState(null);
   const [loadingProveedores, setLoadingProveedores] = useState(false);
-
+  const [showModal, setShowModal] = useState(false)
+  const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
+  const [articulosProveedor, setArticulosProveedor] = useState([]);
+  const [loadingArticulos, setLoadingArticulos] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [proveedorToDelete, setProveedorToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [articuloToDelete, setArticuloToDelete] = useState(null);
 
 
   useEffect(() => {
@@ -99,6 +117,7 @@ const ListaArticulos = ({ filtro = 'todos' }) => {
       console.error('Error al obtener detalle del artículo para edición', error);
     }
   };
+
 //para tabla proveedores
   const verProveedoresEnModal = async (articulo) => {
   setLoadingProveedores(true);
@@ -121,10 +140,11 @@ const cambiarProveedorPredeterminado = async (proveedor) => {
 
   const dto = {
     codigoArticulo: articuloEnModal.codigoArticulo,
-    codProveedor: proveedor.codProveedor,
+    //codProveedor: proveedor.codProveedor,
+    codProveedorArticulo: proveedor.codProveedorArticulo,
     nombreProveedor: proveedor.nombreProveedor  // ✅ opcional, solo si lo usás en el backend
   };
-
+console.log(dto);
   try {
     await axios.put('/articulos/cambiar/predeterminado', dto);
 
@@ -135,6 +155,30 @@ const cambiarProveedorPredeterminado = async (proveedor) => {
     alert("❌ No se pudo cambiar el proveedor predeterminado.");
   }
 };
+
+  const handleDeleteClick = (articulo) => {
+    setArticuloToDelete(articulo);
+    setShowDeleteModal(true);
+    setError(null); //Resetear error al abrir el modal
+  };
+
+  const confirmarEliminar = async () => {
+        if (!articuloToDelete) return;
+
+        setDeleting(true);
+        try {
+            await axios.delete(`/articulos/${articuloToDelete.codigoArticulo}`);
+            cargarArticulos();
+            setShowDeleteModal(false);
+        } catch (err) {
+            console.error('Error al eliminar artículo:', err);
+            setError(err.response?.data?.message || 'No se pudo eliminar el artículo');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+
 
 
 
@@ -196,7 +240,7 @@ const cambiarProveedorPredeterminado = async (proveedor) => {
                         <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)} disabled={!!articulo.fechaHoraBajaArticulo}>
                           ✏️
                         </Button>
-                        <EliminarArticulo
+                         <EliminarArticulo
                           codigoArticulo={articulo.codigoArticulo}
                           nombreArticulo={articulo.nombreArticulo}
                           onDeleteSuccess={cargarArticulos}
@@ -210,6 +254,40 @@ const cambiarProveedorPredeterminado = async (proveedor) => {
               ))}
             </tbody>
           </table>
+
+            {/* Modal de confirmación para eliminar */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Confirmar eliminación</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                ¿Está seguro que desea eliminar al artículo "{articuloToDelete?.nombreArticulo}"?
+                <div className="mt-2 text-muted">
+                  Esta acción marcará al artículo como dado de baja.
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={confirmarEliminar}
+                  disabled={deleting}
+                >
+                  {deleting ? (
+                    <>
+                      <Spinner animation="border" size="sm" className="me-2" />
+                      Eliminando...
+                    </>
+                  ) : 'Confirmar'}
+                </Button>
+              </Modal.Footer>
+            </Modal>
         </div>
       )}
 
@@ -250,6 +328,7 @@ const cambiarProveedorPredeterminado = async (proveedor) => {
           }}
         />
       )}
+
     <ProveedoresPorArticulo
       show={modalProveedoresVisible}
       handleClose={() => setModalProveedoresVisible(false)}

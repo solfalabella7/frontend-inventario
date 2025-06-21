@@ -114,6 +114,7 @@ const finalizarOrden = async (nro) => {
     <div className="container mt-4">
       <h2>Órdenes de Compra</h2>
       {error && <div className="alert alert-danger">{error}</div>}
+      
       <Table striped bordered hover>
         <thead className="table-dark">
           <tr>

@@ -46,7 +46,7 @@ const EliminarProveedor = ({ codigoProveedor, nombreProveedor, onDeleteSuccess, 
                 onClick={() => setShowModal(true)}
                 disabled={disabled}
             >
-                🗑️ Eliminar
+                🗑️ 
             </Button>
 
             <Modal show={showModal} onHide={() => setShowModal(false)}>
