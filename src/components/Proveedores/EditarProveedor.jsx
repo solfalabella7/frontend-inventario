@@ -14,9 +14,12 @@ const EditarProveedor = () => {
     const [asociaciones, setAsociaciones] = useState([]);
     const [currentAsociacion, setCurrentAsociacion] = useState({
         codigoArticulo: '',
-        precioUnitProveedorArticulo: 0,
-        demoraEntrega: 1,
-        esPredeterminado: false
+        precioUnitProveedorArticulo: '',
+        demoraEntrega: '',
+        nivelDeServicio: '',
+        costoPedido: '',
+        costoMantenimiento: '',
+        loteOptimo: '',
     });
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(null);
@@ -63,9 +66,12 @@ const EditarProveedor = () => {
         setAsociaciones([...asociaciones, currentAsociacion]);
         setCurrentAsociacion({
             codigoArticulo: '',
-            precioUnitProveedorArticulo: 0,
-            demoraEntrega: 1,
-            esPredeterminado: false
+            precioUnitProveedorArticulo: '',
+            demoraEntrega: '',
+            nivelDeServicio: '',
+            costoPedido: '',
+            costoMantenimiento: '',
+            loteOptimo: ''
         });
         setError(null);
     };
@@ -170,6 +176,68 @@ const EditarProveedor = () => {
                             </FormBs.Group>
 
                             <FormBs.Group className="mb-3">
+                                        <label htmlFor='costoPedido'>Costo de Pedido</label>
+                                        <FormBs.Control
+                                        id='costoPedido'
+                                        type='number'
+                                        value={currentAsociacion.costoPedido}
+                                        onChange={(e) =>
+                                            setCurrentAsociacion({
+                                            ...currentAsociacion,
+                                            costoPedido: parseFloat(e.target.value) || 0
+                                            })
+                                        }
+                                        />
+                                    </FormBs.Group>
+                        
+                                    <FormBs.Group className="mb-3">
+                                        <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
+                                        <FormBs.Control
+                                        id='costoMantener'
+                                        type='number'
+                                        value={currentAsociacion.costoMantenimiento}
+                                        onChange={(e) =>
+                                            setCurrentAsociacion({
+                                            ...currentAsociacion,
+                                            costoMantenimiento: parseFloat(e.target.value) || 0
+                                            })
+                                        }
+                                        />
+                                    </FormBs.Group>
+                        
+                                    <FormBs.Group className="mb-3">
+                                        <label htmlFor='loteOptimo'>Lote Optimo</label>
+                                        <FormBs.Control
+                                        id='loteOptimo'
+                                        type='number'
+                                        value={currentAsociacion.loteOptimo}
+                                        onChange={(e) =>
+                                            setCurrentAsociacion({
+                                            ...currentAsociacion,
+                                            loteOptimo: parseInt(e.target.value) || 0
+                                            })
+                                        }
+                                        />
+                                    </FormBs.Group>
+                        
+                        
+                                        <FormBs.Group className="mb-3">
+                                        <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
+                                        <FormBs.Control
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            value={currentAsociacion.nivelDeServicio}
+                                            onChange={(e) =>
+                                            setCurrentAsociacion({
+                                                ...currentAsociacion,
+                                                nivelDeServicio: e.target.value !== '' ? parseFloat(e.target.value) : ''
+                                            })
+                                            }
+                                        />
+                                        </FormBs.Group>
+
+                            <FormBs.Group className="mb-3">
                                 <FormBs.Label>Demora de Entrega (días)</FormBs.Label>
                                 <FormBs.Control
                                     type="number"
@@ -182,15 +250,7 @@ const EditarProveedor = () => {
                                 />
                             </FormBs.Group>
 
-                            <FormBs.Check
-                                type="checkbox"
-                                label="Proveedor predeterminado para este artículo"
-                                checked={currentAsociacion.esPredeterminado}
-                                onChange={(e) => setCurrentAsociacion({
-                                    ...currentAsociacion,
-                                    esPredeterminado: e.target.checked
-                                })}
-                            />
+                            
 
                             <Button className="mt-2" onClick={handleAddAsociacion}>Agregar Artículo</Button>
                         </div>
@@ -206,7 +266,7 @@ const EditarProveedor = () => {
                                                 <div className="text-muted">Código: {a.codigoArticulo}</div>
                                                 <div>Precio: ${a.precioUnitProveedorArticulo}</div>
                                                 <div>Demora: {a.demoraEntrega} días</div>
-                                                {a.esPredeterminado && <Badge bg="primary">Predeterminado</Badge>}
+                                               
                                             </div>
                                             <Button
                                                 variant="outline-danger"

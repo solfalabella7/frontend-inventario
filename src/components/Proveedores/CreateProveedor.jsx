@@ -18,7 +18,6 @@ const CreateProveedor = ({ onSuccess }) => {
     codigoArticulo: '',
     precioUnitProveedorArticulo: '',
     demoraEntrega: '',
-    esPredeterminado: false,
     nivelDeServicio: '',
     costoPedido: '',
     costoMantenimiento: '',
@@ -69,7 +68,6 @@ const CreateProveedor = ({ onSuccess }) => {
       codigoArticulo: '',
       precioUnitProveedorArticulo: '',
       demoraEntrega: '',
-      esPredeterminado: false,
       nivelDeServicio: '',
       costoPedido: '',
       costoMantenimiento: '',
@@ -254,17 +252,7 @@ const CreateProveedor = ({ onSuccess }) => {
                 />
               </FormBs.Group>
 
-              <FormBs.Group className="mb-3">
-                <FormBs.Check
-                  type="checkbox"
-                  label="Proveedor predeterminado para este artículo"
-                  checked={currentAsociacion.esPredeterminado}
-                  onChange={(e) => setCurrentAsociacion({
-                    ...currentAsociacion,
-                    esPredeterminado: e.target.checked
-                  })}
-                />
-              </FormBs.Group>
+             
 
               <Button
                 variant="primary"
@@ -290,8 +278,6 @@ const CreateProveedor = ({ onSuccess }) => {
                           <div>Precio: ${asoc.precioUnitProveedorArticulo.toFixed(2)}</div>
                           <div>Demora: {asoc.demoraEntrega} días</div>
                           <div>Nivel de Servicio: {asoc.nivelDeServicio}%</div>
-                          {asoc.esPredeterminado &&
-                            <Badge bg="primary" className="mt-1">Predeterminado</Badge>}
                         </div>
                         <Button
                           variant="outline-danger"
