@@ -197,34 +197,13 @@ console.log(dto);
                         <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)} disabled={!!articulo.fechaHoraBajaArticulo}>
                           ✏️
                         </Button>
-                        {/*<Button
-                          variant="danger"
-                          size="sm"
-                          onClick={async () => {
-                            if (!window.confirm('¿Estás seguro de que querés eliminar este artículo?')) return;
-
-                            try {
-                              await axios.delete(`/articulos/${articulo.codigoArticulo}`);
-                              alert('✅ Artículo eliminado');
-                              cargarArticulos();
-                            } catch (err) {
-                              console.error('Error al eliminar artículo:', err);
-                              const mensaje = err.response?.data || "No se pudo eliminar el artículo";
-                              alert(`❌ ${mensaje}`);
-                            }
-                          }}
-                          disabled={!!articulo.fechaHoraBajaArticulo}
-                          title={articulo.fechaHoraBajaArticulo ? "Este artículo ya está dado de baja" : "Eliminar artículo"}
-                        >
-                          🗑️
-                        </Button>*/}
-
                         <EliminarArticulo
                           codigoArticulo={articulo.codigoArticulo}
                           nombreArticulo={articulo.nombreArticulo}
                           onDeleteSuccess={cargarArticulos}
                           disabled={!!articulo.fechaHoraBajaArticulo}
                         />
+                        
                       </>
                     )}
                   </td>
