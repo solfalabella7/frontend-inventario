@@ -20,6 +20,9 @@ const CreateProveedor = ({ onSuccess }) => {
     demoraEntrega: '',
     esPredeterminado: false,
     nivelDeServicio: '',
+    costoPedido: '',
+    costoMantenimiento: '',
+    loteOptimo: '',
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -68,6 +71,9 @@ const CreateProveedor = ({ onSuccess }) => {
       demoraEntrega: '',
       esPredeterminado: false,
       nivelDeServicio: '',
+      costoPedido: '',
+      costoMantenimiento: '',
+      loteOptimo: '',
     });
     setError(null);
   };
@@ -171,22 +177,50 @@ const CreateProveedor = ({ onSuccess }) => {
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
-                <label htmlFor='costoPedido'>Costo de Pedido</label>
-                <Field id='costoPedido' type='number' name='costoPedido' className='form-control field-input' />
-                <ErrorMessage name="costoPedido" component="div" className="text-danger" />
-              </FormBs.Group>
+              <label htmlFor='costoPedido'>Costo de Pedido</label>
+              <FormBs.Control
+                id='costoPedido'
+                type='number'
+                value={currentAsociacion.costoPedido}
+                onChange={(e) =>
+                  setCurrentAsociacion({
+                    ...currentAsociacion,
+                    costoPedido: parseFloat(e.target.value) || 0
+                  })
+                }
+              />
+            </FormBs.Group>
 
-              <FormBs.Group className="mb-3">
-                <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
-                <Field id='costoMantener' type='number' name='costoMantener' className='form-control field-input' />
-                <ErrorMessage name="costoMantener" component="div" className="text-danger" />
-              </FormBs.Group>
+            <FormBs.Group className="mb-3">
+              <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
+              <FormBs.Control
+                id='costoMantener'
+                type='number'
+                value={currentAsociacion.costoMantenimiento}
+                onChange={(e) =>
+                  setCurrentAsociacion({
+                    ...currentAsociacion,
+                    costoMantenimiento: parseFloat(e.target.value) || 0
+                  })
+                }
+              />
+            </FormBs.Group>
 
-              <FormBs.Group className="mb-3">
-                <label htmlFor='loteOptimo'>Lote Optimo</label>
-                <Field id='loteOptimo' type='number' name='loteOptimo' className='form-control field-input' />
-                <ErrorMessage name="loteOptimo" component="div" className="text-danger" />
-              </FormBs.Group>
+            <FormBs.Group className="mb-3">
+              <label htmlFor='loteOptimo'>Lote Optimo</label>
+              <FormBs.Control
+                id='loteOptimo'
+                type='number'
+                value={currentAsociacion.loteOptimo}
+                onChange={(e) =>
+                  setCurrentAsociacion({
+                    ...currentAsociacion,
+                    loteOptimo: parseInt(e.target.value) || 0
+                  })
+                }
+              />
+            </FormBs.Group>
+
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
