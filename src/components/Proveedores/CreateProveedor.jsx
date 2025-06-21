@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Button, Form as FormBs, Alert, ListGroup, Badge } from 'react-bootstrap';
+import { Button, Form as FormBs, Alert, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 
 const api = axios.create({
@@ -22,6 +22,8 @@ const CreateProveedor = ({ onSuccess }) => {
     costoPedido: '',
     costoMantenimiento: '',
     loteOptimo: '',
+    periodoRevision: '',
+    inventarioMaximo: '',
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -41,7 +43,6 @@ const CreateProveedor = ({ onSuccess }) => {
 
   const initialValues = {
     nombreProveedor: '',
-
   };
 
   const validationSchema = Yup.object().shape({
@@ -57,7 +58,6 @@ const CreateProveedor = ({ onSuccess }) => {
       return;
     }
 
-    // Verificar si el artículo ya está en las asociaciones
     if (asociaciones.some(a => a.codigoArticulo === currentAsociacion.codigoArticulo)) {
       setError('Este artículo ya está seleccionado');
       return;
@@ -72,6 +72,8 @@ const CreateProveedor = ({ onSuccess }) => {
       costoPedido: '',
       costoMantenimiento: '',
       loteOptimo: '',
+      periodoRevision: '',
+      inventarioMaximo: '',
     });
     setError(null);
   };
@@ -175,50 +177,46 @@ const CreateProveedor = ({ onSuccess }) => {
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
-              <label htmlFor='costoPedido'>Costo de Pedido</label>
-              <FormBs.Control
-                id='costoPedido'
-                type='number'
-                value={currentAsociacion.costoPedido}
-                onChange={(e) =>
-                  setCurrentAsociacion({
-                    ...currentAsociacion,
-                    costoPedido: parseFloat(e.target.value) || 0
-                  })
-                }
-              />
-            </FormBs.Group>
+                <FormBs.Label>Costo de Pedido</FormBs.Label>
+                <FormBs.Control
+                  type="number"
+                  value={currentAsociacion.costoPedido}
+                  onChange={(e) =>
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      costoPedido: parseFloat(e.target.value) || 0
+                    })
+                  }
+                />
+              </FormBs.Group>
 
-            <FormBs.Group className="mb-3">
-              <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
-              <FormBs.Control
-                id='costoMantener'
-                type='number'
-                value={currentAsociacion.costoMantenimiento}
-                onChange={(e) =>
-                  setCurrentAsociacion({
-                    ...currentAsociacion,
-                    costoMantenimiento: parseFloat(e.target.value) || 0
-                  })
-                }
-              />
-            </FormBs.Group>
+              <FormBs.Group className="mb-3">
+                <FormBs.Label>Costo de Mantenimiento</FormBs.Label>
+                <FormBs.Control
+                  type="number"
+                  value={currentAsociacion.costoMantenimiento}
+                  onChange={(e) =>
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      costoMantenimiento: parseFloat(e.target.value) || 0
+                    })
+                  }
+                />
+              </FormBs.Group>
 
-            <FormBs.Group className="mb-3">
-              <label htmlFor='loteOptimo'>Lote Optimo</label>
-              <FormBs.Control
-                id='loteOptimo'
-                type='number'
-                value={currentAsociacion.loteOptimo}
-                onChange={(e) =>
-                  setCurrentAsociacion({
-                    ...currentAsociacion,
-                    loteOptimo: parseInt(e.target.value) || 0
-                  })
-                }
-              />
-            </FormBs.Group>
-
+              <FormBs.Group className="mb-3">
+                <FormBs.Label>Lote Óptimo</FormBs.Label>
+                <FormBs.Control
+                  type="number"
+                  value={currentAsociacion.loteOptimo}
+                  onChange={(e) =>
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      loteOptimo: parseInt(e.target.value) || 0
+                    })
+                  }
+                />
+              </FormBs.Group>
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
@@ -236,9 +234,6 @@ const CreateProveedor = ({ onSuccess }) => {
                 />
               </FormBs.Group>
 
-
-
-
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Demora de Entrega (días)</FormBs.Label>
                 <FormBs.Control
@@ -252,7 +247,35 @@ const CreateProveedor = ({ onSuccess }) => {
                 />
               </FormBs.Group>
 
-             
+              <FormBs.Group className="mb-3">
+                <FormBs.Label>Período de Revisión (días)</FormBs.Label>
+                <FormBs.Control
+                  type="number"
+                  min="0"
+                  value={currentAsociacion.periodoRevision}
+                  onChange={(e) =>
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      periodoRevision: e.target.value !== '' ? parseInt(e.target.value) : '',
+                    })
+                  }
+                />
+              </FormBs.Group>
+
+              <FormBs.Group className="mb-3">
+                <FormBs.Label>Inventario Máximo</FormBs.Label>
+                <FormBs.Control
+                  type="number"
+                  min="0"
+                  value={currentAsociacion.inventarioMaximo}
+                  onChange={(e) =>
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      inventarioMaximo: e.target.value !== '' ? parseInt(e.target.value) : '',
+                    })
+                  }
+                />
+              </FormBs.Group>
 
               <Button
                 variant="primary"
@@ -268,7 +291,6 @@ const CreateProveedor = ({ onSuccess }) => {
                 <h6>Artículos asociados:</h6>
                 <ListGroup>
                   {asociaciones.map((asoc, index) => {
-                    // const articulo = articulos.find(a => a.codigoArticulo === asoc.codigoArticulo);
                     const articulo = articulos.find(a => String(a.codigoArticulo) === String(asoc.codigoArticulo));
                     return (
                       <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
@@ -278,6 +300,8 @@ const CreateProveedor = ({ onSuccess }) => {
                           <div>Precio: ${asoc.precioUnitProveedorArticulo.toFixed(2)}</div>
                           <div>Demora: {asoc.demoraEntrega} días</div>
                           <div>Nivel de Servicio: {asoc.nivelDeServicio}%</div>
+                          <div>Período de Revisión: {asoc.periodoRevision} días</div>
+                          <div>Inventario Máximo: {asoc.inventarioMaximo}</div>
                         </div>
                         <Button
                           variant="outline-danger"
