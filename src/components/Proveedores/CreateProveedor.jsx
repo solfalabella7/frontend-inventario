@@ -52,6 +52,11 @@ const CreateProveedor = ({ onSuccess }) => {
       .required('El nombre es obligatorio'),
   });
 
+  // Convertimos ambos a string para asegurar que la comparación funcione
+  const articuloSeleccionado = articulos.find(
+    a => String(a.codigoArticulo) === String(currentAsociacion.codigoArticulo)
+  );
+
   const handleAddAsociacion = () => {
     if (!currentAsociacion.codigoArticulo) {
       setError('Debe seleccionar un artículo');
@@ -114,7 +119,7 @@ const CreateProveedor = ({ onSuccess }) => {
       setSubmitting(false);
     }
   };
-
+console.log(articuloSeleccionado)
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Crear Nuevo Proveedor</h2>
@@ -147,11 +152,14 @@ const CreateProveedor = ({ onSuccess }) => {
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Artículo</FormBs.Label>
                 <FormBs.Select
-                  value={currentAsociacion.codigoArticulo}
-                  onChange={(e) => setCurrentAsociacion({
-                    ...currentAsociacion,
-                    codigoArticulo: parseInt(e.target.value)
-                  })}
+                  value={currentAsociacion.codigoArticulo === '' ? '' : String(currentAsociacion.codigoArticulo)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCurrentAsociacion({
+                      ...currentAsociacion,
+                      codigoArticulo: val === '' ? '' : Number(val),
+                    });
+                  }}
                 >
                   <option value="">Seleccione un artículo</option>
                   {articulos.map(articulo => (
@@ -247,20 +255,25 @@ const CreateProveedor = ({ onSuccess }) => {
                 />
               </FormBs.Group>
 
-              <FormBs.Group className="mb-3">
-                <FormBs.Label>Período de Revisión (días)</FormBs.Label>
-                <FormBs.Control
-                  type="number"
-                  min="0"
-                  value={currentAsociacion.periodoRevision}
-                  onChange={(e) =>
-                    setCurrentAsociacion({
-                      ...currentAsociacion,
-                      periodoRevision: e.target.value !== '' ? parseInt(e.target.value) : '',
-                    })
-                  }
-                />
-              </FormBs.Group>
+              {/* Mostrar Período de Revisión solo si modeloInventario === 'TIEMPO_FIJO' */}
+              {articuloSeleccionado &&
+               articuloSeleccionado.modeloInventario &&
+               articuloSeleccionado.modeloInventario.toUpperCase() === 'TIEMPO_FIJO' && (
+                <FormBs.Group className="mb-3">
+                  <FormBs.Label>Período de Revisión (días)</FormBs.Label>
+                  <FormBs.Control
+                    type="number"
+                    min="0"
+                    value={currentAsociacion.periodoRevision}
+                    onChange={(e) =>
+                      setCurrentAsociacion({
+                        ...currentAsociacion,
+                        periodoRevision: e.target.value !== '' ? parseInt(e.target.value) : '',
+                      })
+                    }
+                  />
+                </FormBs.Group>
+              )}
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Inventario Máximo</FormBs.Label>
