@@ -2,17 +2,74 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Button, Form as FormBs, Alert, ListGroup, Badge, Spinner } from 'react-bootstrap';
+import { Button, Form as FormBs, Alert, Spinner, ListGroup, Row, Col } from 'react-bootstrap';
 import axios from '../../service/axios.config';
 
 const EditarProveedor = () => {
-    const { id } = useParams();
-    const navigate = useNavigate();
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-    const [proveedor, setProveedor] = useState(null);
-    const [articulos, setArticulos] = useState([]);
-    const [asociaciones, setAsociaciones] = useState([]);
-    const [currentAsociacion, setCurrentAsociacion] = useState({
+  const [proveedor, setProveedor] = useState(null);
+  const [articulos, setArticulos] = useState([]);
+  const [asociaciones, setAsociaciones] = useState([]);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const [{ data: proveedorData }, { data: articulosData }] = await Promise.all([
+          axios.get(`/proveedores/${id}`),
+          axios.get('/articulos'),
+        ]);
+
+        setProveedor(proveedorData);
+        setArticulos(articulosData);
+
+        const asociacionesNormalizadas = (proveedorData.proveedorArticulos || []).map(a => ({
+          codigoArticulo: a.codArticulo,
+          precioUnitProveedorArticulo: a.costoUnitario,
+          demoraEntrega: a.demoraEntrega,
+          nivelDeServicio: a.nivelDeServicio,
+          costoPedido: a.costoPedido,
+          costoMantenimiento: a.costoMantenimiento,
+          loteOptimo: a.loteOptimo,
+          esPredeterminado: a.esPredeterminado || false,
+          periodoRevision: a.periodoRevision || 0,
+        }));
+
+        setAsociaciones(asociacionesNormalizadas);
+      } catch (err) {
+        setError('No se pudieron cargar los datos.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    cargarDatos();
+  }, [id]);
+
+  const validationSchema = Yup.object().shape({
+    nombreProveedor: Yup.string().required('El nombre es obligatorio'),
+  });
+
+  const handleAsociacionChange = (index, field, value) => {
+    const nuevas = [...asociaciones];
+    nuevas[index][field] = value;
+    setAsociaciones(nuevas);
+  };
+
+  const handleRemove = index => {
+    const nuevas = [...asociaciones];
+    nuevas.splice(index, 1);
+    setAsociaciones(nuevas);
+  };
+
+  const handleAddAsociacion = () => {
+    setAsociaciones([
+      ...asociaciones,
+      {
         codigoArticulo: '',
         precioUnitProveedorArticulo: '',
         demoraEntrega: '',
@@ -20,277 +77,166 @@ const EditarProveedor = () => {
         costoPedido: '',
         costoMantenimiento: '',
         loteOptimo: '',
-    });
-    const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
-    const [loading, setLoading] = useState(true);
+        esPredeterminado: false,
+        periodoRevision: 0,
+      },
+    ]);
+  };
 
-    useEffect(() => {
-        const cargarDatos = async () => {
-            try {
-                const [respProveedor, respArticulos] = await Promise.all([
-                    axios.get(`/proveedores/${id}`),
-                    axios.get('/articulos')
-                ]);
-                setProveedor(respProveedor.data);
-                setAsociaciones(respProveedor.data.proveedorArticulos || []);
-                setArticulos(respArticulos.data);
-            } catch (err) {
-                console.error('Error al cargar datos:', err);
-                setError('No se pudieron cargar los datos del proveedor.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        cargarDatos();
-    }, [id]);
-
-    const validationSchema = Yup.object().shape({
-        nombreProveedor: Yup.string()
-            .min(2, 'Nombre demasiado corto')
-            .max(50, 'Nombre demasiado largo')
-            .required('El nombre es obligatorio')
-    });
-
-    const handleAddAsociacion = () => {
-        if (!currentAsociacion.codigoArticulo) {
-            setError('Debe seleccionar un artículo');
-            return;
-        }
-
-        if (asociaciones.some(a => a.codigoArticulo === currentAsociacion.codigoArticulo)) {
-            setError('Este artículo ya está asociado');
-            return;
-        }
-
-        setAsociaciones([...asociaciones, currentAsociacion]);
-        setCurrentAsociacion({
-            codigoArticulo: '',
-            precioUnitProveedorArticulo: '',
-            demoraEntrega: '',
-            nivelDeServicio: '',
-            costoPedido: '',
-            costoMantenimiento: '',
-            loteOptimo: ''
-        });
-        setError(null);
-    };
-
-    const handleRemoveAsociacion = (index) => {
-        const nuevas = [...asociaciones];
-        nuevas.splice(index, 1);
-        setAsociaciones(nuevas);
-    };
-
-    const handleSubmit = async (values, { setSubmitting }) => {
-        if (asociaciones.length === 0) {
-            setError('Debe asociar al menos un artículo');
-            setSubmitting(false);
-            return;
-        }
-
-        try {
-            const dto = {
-                nombreProveedor: values.nombreProveedor,
-                asociaciones: asociaciones
-            };
-            await axios.put(`/proveedores/${id}`, dto);
-            setSuccess('Proveedor actualizado correctamente');
-            setTimeout(() => navigate('/proveedores'), 1500);
-        } catch (err) {
-            console.error('Error al guardar proveedor:', err);
-            setError(err.response?.data?.message || 'Error al guardar los cambios');
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    if (loading) {
-        return (
-            <div className="text-center mt-5">
-                <Spinner animation="border" />
-                <p>Cargando proveedor...</p>
-            </div>
-        );
+  const handleSubmit = async (values, { setSubmitting }) => {
+    if (asociaciones.length === 0) {
+      setError('Debe asociar al menos un artículo');
+      setSubmitting(false);
+      return;
     }
 
-    return (
-        <div className="container mt-4">
-            <h2 className="mb-4">Editar Proveedor</h2>
+    try {
+      const dto = {
+        nombreProveedor: values.nombreProveedor,
+        asociaciones: asociaciones.map(a => ({
+          codigoArticulo: Number(a.codigoArticulo),
+          demoraEntrega: Number(a.demoraEntrega),
+          precioUnitProveedorArticulo: Number(a.precioUnitProveedorArticulo),
+          costoPedido: Number(a.costoPedido),
+          loteOptimo: Number(a.loteOptimo),
+          costoMantenimiento: Number(a.costoMantenimiento),
+          esPredeterminado: a.esPredeterminado || false,
+          nivelDeServicio: Number(a.nivelDeServicio),
+          periodoRevision: Number(a.periodoRevision) || 0,
+        })),
+      };
+      await axios.put(`/proveedores/${id}`, dto);
+      setSuccess('Proveedor actualizado correctamente');
+      setTimeout(() => navigate('/proveedores'), 2000);
+    } catch (err) {
+      setError('Error al guardar');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-            {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}
-            {success && <Alert variant="success">{success}</Alert>}
+  if (loading) return <Spinner animation="border" />;
 
-            <Formik
-                initialValues={{ nombreProveedor: proveedor.nombreProveedor }}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-                enableReinitialize
-            >
-                {({ isSubmitting }) => (
-                    <Form>
-                        <FormBs.Group className="mb-3">
-                            <FormBs.Label>Nombre del Proveedor *</FormBs.Label>
-                            <Field
-                                name="nombreProveedor"
-                                as={FormBs.Control}
-                                type="text"
-                                placeholder="Ingrese nombre"
-                            />
-                            <ErrorMessage name="nombreProveedor" component="div" className="text-danger" />
-                        </FormBs.Group>
+  return (
+    <div className="container mt-4">
+      <h2>Editar Proveedor</h2>
+      {error && <Alert variant="danger">{error}</Alert>}
+      {success && <Alert variant="success">{success}</Alert>}
 
-                        <div className="border p-3 mb-4 bg-light rounded">
-                            <h5>Asociar Artículos</h5>
+      <Formik
+        initialValues={{ nombreProveedor: proveedor.nombreProveedor }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <FormBs.Group className="mb-3">
+              <FormBs.Label>Nombre</FormBs.Label>
+              <Field as={FormBs.Control} name="nombreProveedor" />
+              <ErrorMessage name="nombreProveedor" component="div" className="text-danger" />
+            </FormBs.Group>
 
-                            <FormBs.Group className="mb-3">
-                                <FormBs.Label>Artículo</FormBs.Label>
-                                <FormBs.Select
-                                    value={currentAsociacion.codigoArticulo}
-                                    onChange={(e) => setCurrentAsociacion({
-                                        ...currentAsociacion,
-                                        codigoArticulo: e.target.value
-                                    })}
-                                >
-                                    <option value="">Seleccione un artículo</option>
-                                    {articulos.map((a) => (
-                                        <option key={a.codigoArticulo} value={a.codigoArticulo}>
-                                            {a.nombreArticulo}
-                                        </option>
-                                    ))}
-                                </FormBs.Select>
-                            </FormBs.Group>
+            <h5>Artículos Asociados</h5>
+            {asociaciones.map((a, i) => (
+              <div key={i} className="mb-3 p-3 border rounded">
+                <Row>
+                  <Col md={6}>
+                    <FormBs.Label>Artículo</FormBs.Label>
+                   <FormBs.Select
+  value={a.codigoArticulo}
+  onChange={(e) =>
+    handleAsociacionChange(i, 'codigoArticulo', Number(e.target.value) || '')
+  }
+>
 
-                            <FormBs.Group className="mb-3">
-                                <FormBs.Label>Precio Unitario ($)</FormBs.Label>
-                                <FormBs.Control
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={currentAsociacion.precioUnitProveedorArticulo}
-                                    onChange={(e) => setCurrentAsociacion({
-                                        ...currentAsociacion,
-                                        precioUnitProveedorArticulo: parseFloat(e.target.value) || 0
-                                    })}
-                                />
-                            </FormBs.Group>
+                      <option value="">Seleccione un artículo</option>
+                      {articulos.map((art) => (
+                        <option key={art.codigoArticulo} value={art.codigoArticulo}>
+                          {art.nombreArticulo}
+                        </option>
+                      ))}
+                    </FormBs.Select>
+                  </Col>
+                  <Col md={6}>
+                    <FormBs.Label>Precio</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.precioUnitProveedorArticulo}
+                      onChange={e => handleAsociacionChange(i, 'precioUnitProveedorArticulo', e.target.value)}
+                    />
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col md={4}>
+                    <FormBs.Label>Demora</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.demoraEntrega}
+                      onChange={e => handleAsociacionChange(i, 'demoraEntrega', e.target.value)}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <FormBs.Label>Nivel Servicio</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.nivelDeServicio}
+                      onChange={e => handleAsociacionChange(i, 'nivelDeServicio', e.target.value)}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <FormBs.Label>Costo de Pedido</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.costoPedido}
+                      onChange={e => handleAsociacionChange(i, 'costoPedido', e.target.value)}
+                    />
+                  </Col>
+                </Row>
+                <Row className="mt-2">
+                  <Col md={4}>
+                    <FormBs.Label>Lote Óptimo</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.loteOptimo}
+                      onChange={e => handleAsociacionChange(i, 'loteOptimo', e.target.value)}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <FormBs.Label>Costo Mantenimiento</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.costoMantenimiento}
+                      onChange={e => handleAsociacionChange(i, 'costoMantenimiento', e.target.value)}
+                    />
+                  </Col>
+                  <Col md={4}>
+                    <FormBs.Label>Periodo Revisión</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      value={a.periodoRevision}
+                      onChange={e => handleAsociacionChange(i, 'periodoRevision', e.target.value)}
+                    />
+                  </Col>
+                </Row>
+                <div className="mt-3 text-end">
+                  <Button variant="outline-danger" onClick={() => handleRemove(i)}>Eliminar</Button>
+                </div>
+              </div>
+            ))}
 
-                            <FormBs.Group className="mb-3">
-                                        <label htmlFor='costoPedido'>Costo de Pedido</label>
-                                        <FormBs.Control
-                                        id='costoPedido'
-                                        type='number'
-                                        value={currentAsociacion.costoPedido}
-                                        onChange={(e) =>
-                                            setCurrentAsociacion({
-                                            ...currentAsociacion,
-                                            costoPedido: parseFloat(e.target.value) || 0
-                                            })
-                                        }
-                                        />
-                                    </FormBs.Group>
-                        
-                                    <FormBs.Group className="mb-3">
-                                        <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
-                                        <FormBs.Control
-                                        id='costoMantener'
-                                        type='number'
-                                        value={currentAsociacion.costoMantenimiento}
-                                        onChange={(e) =>
-                                            setCurrentAsociacion({
-                                            ...currentAsociacion,
-                                            costoMantenimiento: parseFloat(e.target.value) || 0
-                                            })
-                                        }
-                                        />
-                                    </FormBs.Group>
-                        
-                                    <FormBs.Group className="mb-3">
-                                        <label htmlFor='loteOptimo'>Lote Optimo</label>
-                                        <FormBs.Control
-                                        id='loteOptimo'
-                                        type='number'
-                                        value={currentAsociacion.loteOptimo}
-                                        onChange={(e) =>
-                                            setCurrentAsociacion({
-                                            ...currentAsociacion,
-                                            loteOptimo: parseInt(e.target.value) || 0
-                                            })
-                                        }
-                                        />
-                                    </FormBs.Group>
-                        
-                        
-                                        <FormBs.Group className="mb-3">
-                                        <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
-                                        <FormBs.Control
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            value={currentAsociacion.nivelDeServicio}
-                                            onChange={(e) =>
-                                            setCurrentAsociacion({
-                                                ...currentAsociacion,
-                                                nivelDeServicio: e.target.value !== '' ? parseFloat(e.target.value) : ''
-                                            })
-                                            }
-                                        />
-                                        </FormBs.Group>
+            <Button variant="secondary" className="mb-3" onClick={handleAddAsociacion}>Agregar Artículo</Button>
 
-                            <FormBs.Group className="mb-3">
-                                <FormBs.Label>Demora de Entrega (días)</FormBs.Label>
-                                <FormBs.Control
-                                    type="number"
-                                    min="1"
-                                    value={currentAsociacion.demoraEntrega}
-                                    onChange={(e) => setCurrentAsociacion({
-                                        ...currentAsociacion,
-                                        demoraEntrega: parseInt(e.target.value) || 1
-                                    })}
-                                />
-                            </FormBs.Group>
-
-                            
-
-                            <Button className="mt-2" onClick={handleAddAsociacion}>Agregar Artículo</Button>
-                        </div>
-
-                        {asociaciones.length > 0 ? (
-                            <ListGroup className="mb-4">
-                                {asociaciones.map((a, i) => {
-                                    const art = articulos.find(x => x.codigoArticulo === a.codigoArticulo);
-                                    return (
-                                        <ListGroup.Item key={i} className="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <strong>{art?.nombreArticulo || 'Artículo desconocido'}</strong>
-                                                <div className="text-muted">Código: {a.codigoArticulo}</div>
-                                                <div>Precio: ${a.precioUnitProveedorArticulo}</div>
-                                                <div>Demora: {a.demoraEntrega} días</div>
-                                               
-                                            </div>
-                                            <Button
-                                                variant="outline-danger"
-                                                size="sm"
-                                                onClick={() => handleRemoveAsociacion(i)}
-                                            >
-                                                Eliminar
-                                            </Button>
-                                        </ListGroup.Item>
-                                    );
-                                })}
-                            </ListGroup>
-                        ) : (
-                            <Alert variant="warning">Este proveedor no tiene artículos asociados.</Alert>
-                        )}
-
-                        <Button type="submit" variant="primary" disabled={isSubmitting}>
-                            {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
-                        </Button>
-                    </Form>
-                )}
-            </Formik>
-        </div>
-    );
+            <div className="text-end">
+              <Button type="submit" disabled={isSubmitting} variant="primary">
+                {isSubmitting ? 'Guardando...' : 'Guardar cambios'}
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Formik>
+    </div>
+  );
 };
 
 export default EditarProveedor;
