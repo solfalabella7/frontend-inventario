@@ -27,6 +27,7 @@ const CreateProveedor = ({ onSuccess }) => {
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [asociacionErrors, setAsociacionErrors] = useState({});
 
   useEffect(() => {
     const cargarArticulos = async () => {
@@ -52,22 +53,78 @@ const CreateProveedor = ({ onSuccess }) => {
       .required('El nombre es obligatorio'),
   });
 
+  const asociacionSchema = Yup.object().shape({
+    codigoArticulo: Yup.number().required('Debe seleccionar un artículo'),
+    precioUnitProveedorArticulo: Yup.number()
+      .min(0, 'El precio no puede ser negativo')
+      .required('Requerido'),
+    demoraEntrega: Yup.number()
+      .min(0, 'La demora no puede ser negativa')
+      .required('Requerido'),
+    nivelDeServicio: Yup.number()
+      .min(0, 'El nivel no puede ser negativo')
+      .max(100, 'El nivel no puede superar 100')
+      .required('Requerido'),
+    costoPedido: Yup.number()
+      .min(0, 'El costo no puede ser negativo')
+      .required('Requerido'),
+    costoMantenimiento: Yup.number()
+      .min(0, 'El mantenimiento no puede ser negativo')
+      .required('Requerido'),
+    loteOptimo: Yup.number()
+      .min(0, 'El lote no puede ser negativo')
+      .required('Requerido'),
+    periodoRevision: Yup.number()
+      .min(0, 'El período no puede ser negativo')
+      .nullable(),
+    inventarioMaximo: Yup.number()
+      .min(0, 'El inventario no puede ser negativo')
+      .nullable(),
+  });
+
   // Convertimos ambos a string para asegurar que la comparación funcione
   const articuloSeleccionado = articulos.find(
     a => String(a.codigoArticulo) === String(currentAsociacion.codigoArticulo)
   );
 
+
   const handleAddAsociacion = () => {
+    const errors = {};
+
     if (!currentAsociacion.codigoArticulo) {
-      setError('Debe seleccionar un artículo');
+      errors.codigoArticulo = 'Debe seleccionar un artículo';
+    }
+    if (currentAsociacion.precioUnitProveedorArticulo < 0) {
+      errors.precioUnitProveedorArticulo = 'El precio no puede ser negativo';
+    }
+    if (currentAsociacion.costoPedido < 0) {
+      errors.costoPedido = 'El costo de pedido no puede ser negativo';
+    }
+    if (currentAsociacion.costoMantenimiento < 0) {
+      errors.costoMantenimiento = 'El mantenimiento no puede ser negativo';
+    }
+    if (currentAsociacion.loteOptimo < 0) {
+      errors.loteOptimo = 'El lote no puede ser negativo';
+    }
+    if (currentAsociacion.nivelDeServicio < 0) {
+      errors.nivelDeServicio = 'El nivel de servicio no puede ser negativo';
+    }
+    if (currentAsociacion.demoraEntrega < 0) {
+      errors.demoraEntrega = 'La demora no puede ser negativa';
+    }
+    if (currentAsociacion.periodoRevision < 0) {
+      errors.periodoRevision = 'El período no puede ser negativo';
+    }
+    if (currentAsociacion.inventarioMaximo < 0) {
+      errors.inventarioMaximo = 'El inventario máximo no puede ser negativo';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setAsociacionErrors(errors);
       return;
     }
 
-    if (asociaciones.some(a => a.codigoArticulo === currentAsociacion.codigoArticulo)) {
-      setError('Este artículo ya está seleccionado');
-      return;
-    }
-
+    // Si no hay errores, agregar artículo y limpiar
     setAsociaciones([...asociaciones, currentAsociacion]);
     setCurrentAsociacion({
       codigoArticulo: '',
@@ -80,8 +137,10 @@ const CreateProveedor = ({ onSuccess }) => {
       periodoRevision: '',
       inventarioMaximo: '',
     });
+    setAsociacionErrors({});
     setError(null);
   };
+
 
   const handleRemoveAsociacion = (index) => {
     const nuevasAsociaciones = [...asociaciones];
@@ -119,7 +178,7 @@ const CreateProveedor = ({ onSuccess }) => {
       setSubmitting(false);
     }
   };
-
+  
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Crear Nuevo Proveedor</h2>
@@ -174,14 +233,16 @@ const CreateProveedor = ({ onSuccess }) => {
                 <FormBs.Label>Precio Unitario ($)</FormBs.Label>
                 <FormBs.Control
                   type="number"
-                  step="0.01"
-                  min="0"
                   value={currentAsociacion.precioUnitProveedorArticulo}
                   onChange={(e) => setCurrentAsociacion({
                     ...currentAsociacion,
                     precioUnitProveedorArticulo: parseFloat(e.target.value) || 0
                   })}
+                  isInvalid={!!asociacionErrors.precioUnitProveedorArticulo}
                 />
+                {asociacionErrors.precioUnitProveedorArticulo && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.precioUnitProveedorArticulo}</FormBs.Text>
+                )}
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
@@ -195,7 +256,12 @@ const CreateProveedor = ({ onSuccess }) => {
                       costoPedido: parseFloat(e.target.value) || 0
                     })
                   }
+                  isInvalid={!!asociacionErrors.costoPedido}
                 />
+                {asociacionErrors.costoPedido && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.costoPedido}</FormBs.Text>
+                )}
+
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
@@ -209,7 +275,11 @@ const CreateProveedor = ({ onSuccess }) => {
                       costoMantenimiento: parseFloat(e.target.value) || 0
                     })
                   }
+                  isInvalid={!!asociacionErrors.costoMantenimiento}
                 />
+                {asociacionErrors.costoMantenimiento && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.costoMantenimiento}</FormBs.Text>
+                )}
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
@@ -223,7 +293,11 @@ const CreateProveedor = ({ onSuccess }) => {
                       loteOptimo: parseInt(e.target.value) || 0
                     })
                   }
+                  isInvalid={!!asociacionErrors.loteOptimo}
                 />
+                {asociacionErrors.loteOptimo && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.loteOptimo}</FormBs.Text>
+                )}
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
@@ -239,7 +313,11 @@ const CreateProveedor = ({ onSuccess }) => {
                       nivelDeServicio: e.target.value !== '' ? parseFloat(e.target.value) : ''
                     })
                   }
+                  isInvalid={!!asociacionErrors.nivelDeServicio}
                 />
+                {asociacionErrors.nivelDeServicio && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.nivelDeServicio}</FormBs.Text>
+                )}
               </FormBs.Group>
 
               <FormBs.Group className="mb-3">
@@ -252,28 +330,36 @@ const CreateProveedor = ({ onSuccess }) => {
                     ...currentAsociacion,
                     demoraEntrega: e.target.value !== '' ? parseInt(e.target.value) : ''
                   })}
+                  isInvalid={!!asociacionErrors.demoraEntrega}
                 />
+                {asociacionErrors.demoraEntrega && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.demoraEntrega}</FormBs.Text>
+                )}
               </FormBs.Group>
 
               {/* Mostrar Período de Revisión solo si modeloInventario === 'TIEMPO_FIJO' */}
               {articuloSeleccionado &&
-               articuloSeleccionado.modeloInventario &&
-               articuloSeleccionado.modeloInventario.toUpperCase() === 'TIEMPO_FIJO' && (
-                <FormBs.Group className="mb-3">
-                  <FormBs.Label>Período de Revisión (días)</FormBs.Label>
-                  <FormBs.Control
-                    type="number"
-                    min="0"
-                    value={currentAsociacion.periodoRevision}
-                    onChange={(e) =>
-                      setCurrentAsociacion({
-                        ...currentAsociacion,
-                        periodoRevision: e.target.value !== '' ? parseInt(e.target.value) : '',
-                      })
-                    }
-                  />
-                </FormBs.Group>
-              )}
+                articuloSeleccionado.modeloInventario &&
+                articuloSeleccionado.modeloInventario.toUpperCase() === 'TIEMPO_FIJO' && (
+                  <FormBs.Group className="mb-3">
+                    <FormBs.Label>Período de Revisión (días)</FormBs.Label>
+                    <FormBs.Control
+                      type="number"
+                      min="0"
+                      value={currentAsociacion.periodoRevision}
+                      onChange={(e) =>
+                        setCurrentAsociacion({
+                          ...currentAsociacion,
+                          periodoRevision: e.target.value !== '' ? parseInt(e.target.value) : '',
+                        })
+                      }
+                      isInvalid={!!asociacionErrors.periodoRevision}
+                    />
+                    {asociacionErrors.periodoRevision && (
+                      <FormBs.Text className="text-danger">{asociacionErrors.periodoRevision}</FormBs.Text>
+                    )}
+                  </FormBs.Group>
+                )}
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Inventario Máximo</FormBs.Label>
@@ -287,7 +373,11 @@ const CreateProveedor = ({ onSuccess }) => {
                       inventarioMaximo: e.target.value !== '' ? parseInt(e.target.value) : '',
                     })
                   }
+                  isInvalid={!!asociacionErrors.inventarioMaximo}
                 />
+                {asociacionErrors.inventarioMaximo && (
+                  <FormBs.Text className="text-danger">{asociacionErrors.inventarioMaximo}</FormBs.Text>
+                )}
               </FormBs.Group>
 
               <Button
