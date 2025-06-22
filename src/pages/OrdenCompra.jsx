@@ -26,17 +26,7 @@ const OrdenCompra = () => {
                 >
                   Cargar Nueva OC
                 </NavLink>
-                 <NavLink 
-                  to="/ordenCompra/finalizar"
-                  style={({ isActive }) => ({
-                    marginRight: '1rem',
-                    fontWeight: isActive ? 'bold' : 'normal',
-                    textDecoration:'none'
-                  })}
-                >
-                  
-                  Ordenes Finalizadas
-                </NavLink>
+              
                 <NavLink 
                   to="/"
                   style={{ marginLeft: 'auto', textDecoration: 'none' }}
