@@ -104,12 +104,12 @@ const CreateOrdenCompra = () => {
             setProveedorSugeridoPorArticulo({});
             setSugerenciaCantidadPorArticulo({});
             if (res.data.advertencia === true) {
-  setInfo('⚠️ La orden fue creada, pero hay artículos cuya cantidad no alcanza el punto de pedido.');
-  setSuccess(null);
-} else {
-  setSuccess('✅ Orden creada exitosamente.');
-  setInfo(null); // Oculta el amarillo
-}
+              setInfo('⚠️ La orden fue creada, pero hay artículos cuya cantidad no alcanza el punto de pedido.');
+              setSuccess(null);
+            } else {
+              setSuccess('✅ Orden creada exitosamente.');
+              setInfo(null); // Oculta el amarillo
+            }
           } catch (error) {
             console.error('Error al crear orden:', error);
             const msg = error.response?.data;
@@ -261,6 +261,11 @@ const CreateOrdenCompra = () => {
                         )}
                         {sugerenciaCantidadPorArticulo[index] === '...' && (
                           <small className="text-muted">Cargando sugerencia...</small>
+                        )}
+                        {proveedorSugeridoPorArticulo[index] === null && (
+                          <div className="text-info">
+                            ℹ️ Para sugerir una cantidad, elija un proveedor predeterminado.
+                          </div>
                         )}
                         <ErrorMessage name={`detallesOC[${index}].cantidadArticulo`} component="div" className="text-danger" />
                       </div>
