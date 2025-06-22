@@ -160,19 +160,29 @@ const EditarProveedor = () => {
                     ) : (
                       <>
                         {/* Si no tiene nombreArticulo, es una nueva asociación y se puede elegir */}
-                        <FormBs.Select
-                          value={a.codigoArticulo}
-                          onChange={(e) =>
-                            handleAsociacionChange(i, 'codigoArticulo', Number(e.target.value) || '')
-                          }
-                        >
-                          <option value="">Seleccione un artículo</option>
-                          {articulos.map((art) => (
-                            <option key={art.codigoArticulo} value={art.codigoArticulo}>
-                              {art.nombreArticulo}
-                            </option>
-                          ))}
-                        </FormBs.Select>
+
+                          <FormBs.Select
+                            value={a.codigoArticulo}
+                            onChange={(e) =>
+                              handleAsociacionChange(i, 'codigoArticulo', Number(e.target.value) || '')
+                            }
+                          >
+                            <option value="">Seleccione un artículo</option>
+                            {articulos
+                              .filter((art) => {
+                                // Verifica si ya está seleccionado por otra asociación
+                                const yaAsignado = asociaciones.some(
+                                  (asoc, j) => j !== i && asoc.codigoArticulo === art.codigoArticulo
+                                );
+                                return !yaAsignado;
+                              })
+                              .map((art) => (
+                                <option key={art.codigoArticulo} value={art.codigoArticulo}>
+                                  {art.nombreArticulo}
+                                </option>
+                              ))}
+                          </FormBs.Select>
+
                       </>
                     )}
 
