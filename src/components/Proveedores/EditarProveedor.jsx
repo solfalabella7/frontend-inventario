@@ -37,7 +37,6 @@ const EditarProveedor = () => {
           loteOptimo: a.loteOptimo,
           esPredeterminado: a.esPredeterminado || false,
           periodoRevision: a.periodoRevision || 0,
-          inventarioMaximo: '',
         }));
 
         setAsociaciones(asociacionesNormalizadas);
@@ -80,7 +79,6 @@ const EditarProveedor = () => {
         loteOptimo: '',
         esPredeterminado: false,
         periodoRevision: '',
-         inventarioMaximo: '',
       },
     ]);
   };
@@ -105,7 +103,6 @@ const EditarProveedor = () => {
           esPredeterminado: a.esPredeterminado || false,
           nivelDeServicio: Number(a.nivelDeServicio),
           periodoRevision: Number(a.periodoRevision) || 0,
-          inventarioMaximo: Number(a.inventarioMaximo) || 0,
         })),
       };
       await axios.put(`/proveedores/${id}`, dto);
@@ -221,16 +218,7 @@ const EditarProveedor = () => {
                       onChange={e => handleAsociacionChange(i, 'periodoRevision', e.target.value)}
                     />
                   </Col>
-                    <Col md={4}>
-                    <FormBs.Label>Inventario Máximo</FormBs.Label>
-                    <FormBs.Control
-                        type="number"
-                        value={a.inventarioMaximo}
-                        onChange={e => handleAsociacionChange(i, 'inventarioMaximo', e.target.value)}
-                    />
-                    </Col>
-
-
+                  
                 </Row>
                 <div className="mt-3 text-end">
                   <Button variant="outline-danger" onClick={() => handleRemove(i)}>Eliminar</Button>
