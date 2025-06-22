@@ -21,9 +21,6 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
     demandaAnual: 0,
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
   const validationSchema = Yup.object().shape({
     stockReal: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     stockSeguridad: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
@@ -34,8 +31,6 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
     costoAlmacenamiento: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     puntoPedido: Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
     desviacionEstandar: Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
-
-
   });
 
   useEffect(() => {

@@ -34,7 +34,6 @@ const EditarProveedor = () => {
           nivelDeServicio: a.nivelDeServicio,
           costoPedido: a.costoPedido,
           costoMantenimiento: a.costoMantenimiento,
-          loteOptimo: a.loteOptimo,
           esPredeterminado: a.esPredeterminado || false,
           periodoRevision: a.periodoRevision || 0,
         }));
@@ -76,7 +75,6 @@ const EditarProveedor = () => {
         nivelDeServicio: '',
         costoPedido: '',
         costoMantenimiento: '',
-        loteOptimo: '',
         esPredeterminado: false,
         periodoRevision: '',
       },
@@ -98,7 +96,6 @@ const EditarProveedor = () => {
           demoraEntrega: Number(a.demoraEntrega),
           precioUnitProveedorArticulo: Number(a.precioUnitProveedorArticulo),
           costoPedido: Number(a.costoPedido),
-          loteOptimo: Number(a.loteOptimo),
           costoMantenimiento: Number(a.costoMantenimiento),
           esPredeterminado: a.esPredeterminado || false,
           nivelDeServicio: Number(a.nivelDeServicio),
@@ -143,12 +140,12 @@ const EditarProveedor = () => {
                 <Row>
                   <Col md={6}>
                     <FormBs.Label>Artículo</FormBs.Label>
-                   <FormBs.Select
-                    value={a.codigoArticulo}
-                    onChange={(e) =>
+                    <FormBs.Select
+                      value={a.codigoArticulo}
+                      onChange={(e) =>
                         handleAsociacionChange(i, 'codigoArticulo', Number(e.target.value) || '')
-                    }
->
+                      }
+                    >
 
                       <option value="">Seleccione un artículo</option>
                       {articulos.map((art) => (
@@ -194,14 +191,7 @@ const EditarProveedor = () => {
                   </Col>
                 </Row>
                 <Row className="mt-2">
-                  <Col md={4}>
-                    <FormBs.Label>Lote Óptimo</FormBs.Label>
-                    <FormBs.Control
-                      type="number"
-                      value={a.loteOptimo}
-                      onChange={e => handleAsociacionChange(i, 'loteOptimo', e.target.value)}
-                    />
-                  </Col>
+
                   <Col md={4}>
                     <FormBs.Label>Costo Mantenimiento</FormBs.Label>
                     <FormBs.Control
@@ -218,7 +208,7 @@ const EditarProveedor = () => {
                       onChange={e => handleAsociacionChange(i, 'periodoRevision', e.target.value)}
                     />
                   </Col>
-                  
+
                 </Row>
                 <div className="mt-3 text-end">
                   <Button variant="outline-danger" onClick={() => handleRemove(i)}>Eliminar</Button>

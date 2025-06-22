@@ -78,25 +78,6 @@ const ListaOrdenesCompra = () => {
     setDetalle(null);
   };
 
-  const finalizarOrden = async (nro) => {
-    try {
-      const response = await axios.put(`/ordenCompra/${nro}/finalizar`);
-      const { ordenCompra, alertar } = response.data;
-
-      // actualizar la lista local
-      setOrdenes(ordenes.map(o => o.nroOrdenCompra === nro ? ordenCompra : o));
-
-      if (alertar) {
-        alert("⚠️ El stock total de uno o más artículos aún no alcanza el punto de pedido tras finalizar la OC.");
-      } else {
-        alert("✅ Orden finalizada correctamente.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error al finalizar la orden: " + (err.response?.data || err.message));
-    }
-  };
-
 
   const confirmarCancelar = async () => {
     if (!ordenCompraToCancel) return;

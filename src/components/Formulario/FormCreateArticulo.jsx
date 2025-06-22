@@ -43,14 +43,7 @@ const FormCreateArticulo = () => {
             stockSeguridad: parseInt(values.stockSeguridadArticulo),
             puntoPedido: values.puntoPedido,
             fechaHoraBajaArticulo: null,
-           // precioUnitario: parseFloat(values.precioUnitario),
-           // proveedoresAsignados: [],
-           // demoraEntrega: 5,
-            //costoPedido: parseFloat(values.costoPedido),
-            //costoMantener: parseFloat(values.costoMantener),
             costoAlmacenamiento: parseFloat(values.costoAlmacenamiento),
-           // loteOptimo: parseInt(values.loteOptimo),
-           // inventarioMax: 5,
             modeloElegido: values.modeloElegido,
             demandaAnual: parseInt(values.demandaAnual),
             desviacionEstandar: parseInt (values.desviacionEstandar)
@@ -117,33 +110,11 @@ const FormCreateArticulo = () => {
               <ErrorMessage name="puntoPedido" component="div" className="text-danger" />
             </FormBs.Group>
 
-            {/* <FormBs.Group className="mb-3">
-              <label htmlFor='costoPedido'>Costo de Pedido</label>
-              <Field id='costoPedido' type='number' name='costoPedido' className='form-control field-input' />
-              <ErrorMessage name="costoPedido" component="div" className="text-danger" />
-            </FormBs.Group> 
-
-            <FormBs.Group className="mb-3">
-              <label htmlFor='costoMantener'>Costo de Mantenimiento</label>
-              <Field id='costoMantener' type='number' name='costoMantener' className='form-control field-input' />
-              <ErrorMessage name="costoMantener" component="div" className="text-danger" />
-            </FormBs.Group>
-            
-            <FormBs.Group className="mb-3">
-              <label htmlFor='loteOptimo'>Lote Optimo</label>
-              <Field id='loteOptimo' type='number' name='loteOptimo' className='form-control field-input' />
-              <ErrorMessage name="loteOptimo" component="div" className="text-danger" />
-            </FormBs.Group>
-            
-            */}
-
             <FormBs.Group className="mb-3">
               <label htmlFor='costoAlmacenamiento'>Costo de Almacenamineto</label>
               <Field id='costoAlmacenamiento' type='number' name='costoAlmacenamiento' className='form-control field-input' />
               <ErrorMessage name="costoAlmacenamiento" component="div" className="text-danger" />
             </FormBs.Group>
-
-            
 
             <FormBs.Group className="mb-3">
               <label htmlFor='modeloElegido'>Modelo Inventario</label>

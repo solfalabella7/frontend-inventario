@@ -4,18 +4,11 @@ import axios from '../../service/axios.config';
 import EliminarArticulo from './EliminarArticulo';
 import ModificarArticulo from './ModificarArticulo';
 import {
-    Table,
     Button,
     Modal,
-    Badge,
-    Alert,
     Spinner,
-    Dropdown,
-    ListGroup
 } from 'react-bootstrap';
 import ProveedoresPorArticulo from './ProveedoresPorArticulo';
-import { FaEdit, FaTrash, FaEye, FaPlus } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
 
 const ListaArticulos = ({ filtro = 'todos' }) => {
   const [articulos, setArticulos] = useState([]);

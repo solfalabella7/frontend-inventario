@@ -21,7 +21,6 @@ const CreateProveedor = ({ onSuccess }) => {
     nivelDeServicio: '',
     costoPedido: '',
     costoMantenimiento: '',
-   // loteOptimo: '',
     periodoRevision: '',
   });
   const [error, setError] = useState(null);
@@ -52,31 +51,6 @@ const CreateProveedor = ({ onSuccess }) => {
       .required('El nombre es obligatorio'),
   });
 
-  const asociacionSchema = Yup.object().shape({
-    codigoArticulo: Yup.number().required('Debe seleccionar un artículo'),
-    precioUnitProveedorArticulo: Yup.number()
-      .min(0, 'El precio no puede ser negativo')
-      .required('Requerido'),
-    demoraEntrega: Yup.number()
-      .min(0, 'La demora no puede ser negativa')
-      .required('Requerido'),
-    nivelDeServicio: Yup.number()
-      .min(0, 'El nivel no puede ser negativo')
-      .max(100, 'El nivel no puede superar 100')
-      .required('Requerido'),
-    costoPedido: Yup.number()
-      .min(0, 'El costo no puede ser negativo')
-      .required('Requerido'),
-    costoMantenimiento: Yup.number()
-      .min(0, 'El mantenimiento no puede ser negativo')
-      .required('Requerido'),
-    //loteOptimo: Yup.number()
-    //  .min(0, 'El lote no puede ser negativo')
-    //  .required('Requerido'),
-    periodoRevision: Yup.number()
-      .min(0, 'El período no puede ser negativo')
-      .nullable(),
-  });
 
   // Convertimos ambos a string para asegurar que la comparación funcione
   const articuloSeleccionado = articulos.find(
@@ -99,9 +73,6 @@ const CreateProveedor = ({ onSuccess }) => {
     if (currentAsociacion.costoMantenimiento < 0) {
       errors.costoMantenimiento = 'El mantenimiento no puede ser negativo';
     }
-    //if (currentAsociacion.loteOptimo < 0) {
-      //errors.loteOptimo = 'El lote no puede ser negativo';
-    //}
     if (currentAsociacion.nivelDeServicio < 0) {
       errors.nivelDeServicio = 'El nivel de servicio no puede ser negativo';
     }
@@ -126,7 +97,6 @@ const CreateProveedor = ({ onSuccess }) => {
       nivelDeServicio: '',
       costoPedido: '',
       costoMantenimiento: '',
-     // loteOptimo: '',
       periodoRevision: '',
     });
     setAsociacionErrors({});
@@ -273,24 +243,6 @@ const CreateProveedor = ({ onSuccess }) => {
                   <FormBs.Text className="text-danger">{asociacionErrors.costoMantenimiento}</FormBs.Text>
                 )}
               </FormBs.Group>
-
-             {/* <FormBs.Group className="mb-3">
-                <FormBs.Label>Lote Óptimo</FormBs.Label>
-                <FormBs.Control
-                  type="number"
-                  value={currentAsociacion.loteOptimo}
-                  onChange={(e) =>
-                    setCurrentAsociacion({
-                      ...currentAsociacion,
-                      loteOptimo: parseInt(e.target.value) || 0
-                    })
-                  }
-                  isInvalid={!!asociacionErrors.loteOptimo}
-                />
-                {asociacionErrors.loteOptimo && (
-                  <FormBs.Text className="text-danger">{asociacionErrors.loteOptimo}</FormBs.Text>
-                )}
-              </FormBs.Group> */}
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
