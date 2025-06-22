@@ -142,22 +142,40 @@ const EditarProveedor = () => {
                 <Row>
                   <Col md={6}>
                     <FormBs.Label>Artículo</FormBs.Label>
-                   
+                    {a.nombreArticulo ? (
+                      <>
+                        {/* Si ya tiene nombreArticulo, se asume que es una asociación existente */}
+                        <input
+                          type="hidden"
+                          name={`asociaciones[${i}].codigoArticulo`}
+                          value={a.codigoArticulo}
+                        />
+                        <FormBs.Control
+                          plaintext
+                          readOnly
+                          value={a.nombreArticulo}
+                          className="bg-light"
+                        />
+                      </>
+                    ) : (
+                      <>
+                        {/* Si no tiene nombreArticulo, es una nueva asociación y se puede elegir */}
+                        <FormBs.Select
+                          value={a.codigoArticulo}
+                          onChange={(e) =>
+                            handleAsociacionChange(i, 'codigoArticulo', Number(e.target.value) || '')
+                          }
+                        >
+                          <option value="">Seleccione un artículo</option>
+                          {articulos.map((art) => (
+                            <option key={art.codigoArticulo} value={art.codigoArticulo}>
+                              {art.nombreArticulo}
+                            </option>
+                          ))}
+                        </FormBs.Select>
+                      </>
+                    )}
 
-                    {/* Campo oculto para enviar el código del artículo */}
-                    <input
-                      type="hidden"
-                      name={`asociaciones[${i}].codigoArticulo`}
-                      value={a.codigoArticulo}
-                    />
-
-                    {/* Mostrar el nombre del artículo en modo solo lectura */}
-                    <FormBs.Control
-                      plaintext
-                      readOnly
-                      value={a.nombreArticulo || 'Artículo no encontrado'}
-                      className="bg-light"
-                    />
 
                   </Col>
                   <Col md={6}>
