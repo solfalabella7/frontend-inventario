@@ -65,16 +65,16 @@ const CreateOrdenCompra = () => {
         </Alert>
       )}
 
-{success && (
-  <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
-    {success}
-  </Alert>
-)}
-  {info && (
-    <Alert variant="warning" onClose={() => setInfo(null)} dismissible>
-      {info}
-    </Alert>
-  )}
+      {success && (
+        <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
+          {success}
+        </Alert>
+      )}
+      {info && (
+        <Alert variant="warning" onClose={() => setInfo(null)} dismissible>
+          {info}
+        </Alert>
+      )}
       <Formik
         initialValues={{
           nombreOC: '',
