@@ -24,9 +24,9 @@ const FormCreateArticulo = () => {
     stockActualArticulo: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     stockSeguridadArticulo: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     demandaAnual: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    puntoPedido:  Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    puntoPedido:  Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
     modeloElegido: Yup.string().oneOf(['TIEMPO_FIJO', 'LOTE_FIJO']).required('Modelo requerido'),
-    desviacionEstandar: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    desviacionEstandar: Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
     costoAlmacenamiento: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
   });
 
