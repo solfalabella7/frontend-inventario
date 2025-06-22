@@ -189,53 +189,69 @@ console.log(dto);
                 <th className="text-center">Stock Actual</th>
                 <th className="text-center">Stock de Seguridad</th>
                 <th className="text-center">Fecha de Baja</th>
-                {filtro === 'todos' && <th>Proveedores</th>}
+                <th className="text-center">Proveedores</th>
                 <th className="text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {articulos.map((articulo) => (
-                <tr key={articulo.codigoArticulo}>
-                  <td>{articulo.codigoArticulo}</td>
-                  <td>{articulo.nombreArticulo}</td>
-                  <td>{articulo.descripcion}</td>
-                  <td>{articulo.stockActual}</td>
-                  <td>{articulo.stockSeguridad}</td>
-                  <td>
-                    {articulo.fechaHoraBajaArticulo
-                      ? new Date(articulo.fechaHoraBajaArticulo).toLocaleString('es-AR')
-                      : '-'}
-                  </td>
-                 
+                {articulos.map((articulo) => (
+                  <tr key={articulo.codigoArticulo}>
+                    <td>{articulo.codigoArticulo}</td>
+                    <td>{articulo.nombreArticulo}</td>
+                    <td>{articulo.descripcion}</td>
+                    <td>{articulo.stockActual}</td>
+                    <td>{articulo.stockSeguridad}</td>
+                    <td>
+                      {articulo.fechaHoraBajaArticulo
+                        ? new Date(articulo.fechaHoraBajaArticulo).toLocaleString('es-AR')
+                        : '-'}
+                    </td>
+
+                    {/* Proveedores: siempre visible */}
                     <td className="text-center">
-                      <Button variant="outline-primary" size="sm" onClick={() => verProveedoresEnModal(articulo)}>
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() => verProveedoresEnModal(articulo)}
+                      >
                         Ver Proveedores
                       </Button>
                     </td>
 
-                  
-                  <td className="text-center d-flex gap-2 justify-content-center">
-                    <Button variant="info" size="sm" onClick={() => abrirModalDetalle(articulo.codigoArticulo)}>
-                      Detalles
-                    </Button>
-                    {filtro === 'todos' && (
-                      <>
-                        <Button variant="warning" size="sm" onClick={() => handleEditar(articulo)} disabled={!!articulo.fechaHoraBajaArticulo}>
-                          ✏️
-                        </Button>
-                         <EliminarArticulo
-                          codigoArticulo={articulo.codigoArticulo}
-                          nombreArticulo={articulo.nombreArticulo}
-                          onDeleteSuccess={cargarArticulos}
-                          disabled={!!articulo.fechaHoraBajaArticulo}
-                        />
-                        
-                      </>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+                    {/* Acciones: Detalles siempre, Editar/Eliminar solo en filtro 'todos' */}
+                    <td className="text-center d-flex gap-2 justify-content-center">
+                      <Button
+                        variant="info"
+                        size="sm"
+                        onClick={() => abrirModalDetalle(articulo.codigoArticulo)}
+                      >
+                        Detalles
+                      </Button>
+
+                      {filtro === 'todos' && (
+                        <>
+                          <Button
+                            variant="warning"
+                            size="sm"
+                            onClick={() => handleEditar(articulo)}
+                            disabled={!!articulo.fechaHoraBajaArticulo}
+                          >
+                            ✏️
+                          </Button>
+                          <EliminarArticulo
+                            codigoArticulo={articulo.codigoArticulo}
+                            nombreArticulo={articulo.nombreArticulo}
+                            onDeleteSuccess={cargarArticulos}
+                            disabled={!!articulo.fechaHoraBajaArticulo}
+                          />
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+
+              
           </table>
 
             {/* Modal de confirmación para eliminar */}

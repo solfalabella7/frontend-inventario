@@ -84,9 +84,9 @@ const EliminarProveedor = ({ codigoProveedor, nombreProveedor, onDeleteSuccess, 
                     </Button>
                     <Button 
 
-    variant="danger" 
-    onClick={() => handleEliminar(codigoProveedor)}
-    disabled={loading || error}
+                        variant="danger"
+                        onClick={() => handleEliminar(codigoProveedor)}
+                        disabled={loading || error}
                     >
                         {loading ? (
                             <>

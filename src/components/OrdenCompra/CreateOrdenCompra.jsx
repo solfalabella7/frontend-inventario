@@ -95,16 +95,20 @@ const CreateOrdenCompra = () => {
             };
 
             const res = await axios.post('/ordenCompra', payload);
-            console.log('🧾 Respuesta completa del backend:', res.data);
+            console.log(' Respuesta completa del backend:', res.data);
 
-            setSuccess('✅ Orden creada exitosamente.');
+           
             resetForm();
             setProveedorSeleccionado('');
             setArticulosPermitidos([]);
             setProveedorSugeridoPorArticulo({});
             setSugerenciaCantidadPorArticulo({});
-            if (res.data.advertencia === false) {
+            if (res.data.advertencia === true) {
   setInfo('⚠️ La orden fue creada, pero hay artículos cuya cantidad no alcanza el punto de pedido.');
+  setSuccess(null);
+} else {
+  setSuccess('✅ Orden creada exitosamente.');
+  setInfo(null); // Oculta el amarillo
 }
           } catch (error) {
             console.error('Error al crear orden:', error);
@@ -193,7 +197,7 @@ const CreateOrdenCompra = () => {
                                     ...prev,
                                     [index]: '...' // mostrar "..." mientras carga
                                   }));
-                                  console.log("🎯 Obteniendo sugerencia cantidad con:", {
+                                  console.log("Obteniendo sugerencia cantidad con:", {
                                     codArticulo,
                                     codProveedor
                                   });
@@ -228,7 +232,13 @@ const CreateOrdenCompra = () => {
                             </option>
                           ))}
                         </Field>
-                        {proveedorSugeridoPorArticulo[index] && (
+                        {proveedorSugeridoPorArticulo[index] === null && (
+                          <small className="text-warning">
+                            Este artículo no tiene un proveedor predeterminado.
+                          </small>
+                        )}
+
+                        {proveedorSugeridoPorArticulo[index] && proveedorSugeridoPorArticulo[index] !== null && (
                           <small className="text-muted">
                             Proveedor predeterminado: {proveedorSugeridoPorArticulo[index]}
                           </small>
