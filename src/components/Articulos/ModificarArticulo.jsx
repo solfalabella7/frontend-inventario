@@ -26,7 +26,7 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
 const validationSchema = Yup.object().shape({
    stockReal: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     stockSeguridad: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    precioUnitario:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    //precioUnitario:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
      demoraEntrega:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
      costoPedido:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
      costoMantener:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
@@ -37,20 +37,17 @@ const validationSchema = Yup.object().shape({
 
   useEffect(() => {
     if (articulo) {
+      console.log("Articulo recibido en ModificarArticulo:", articulo);
       setFormData({
-        nombreArticulo: articulo.nombreArticulo || '',
-        descripcion: articulo.descripcion || '',
-        stockReal: articulo.stockReal,
-        stockSeguridad: articulo.stockSeguridad?.toString() || '',
-        precioUnitario: articulo.precioUnitario ?? 0,
-        demoraEntrega: articulo.demoraEntrega ?? 0,
-        costoPedido: articulo.costoPedido ?? 0,
-        costoMantener: articulo.costoMantener ?? 0,
-        costoAlmacenamiento: articulo.costoAlmacenamiento ?? 0,
-        loteOptimo: articulo.loteOptimo ?? 0,
-        inventarioMax: articulo.inventarioMax ?? 0,
-        modeloElegido: articulo.modeloElegido || '',
-        demandaAnual: articulo.demandaAnual ?? 0,
+      nombreArticulo: articulo.nombreArticulo || '',
+      descripcion: articulo.descripcion || '',
+      stockReal: articulo.stockReal ?? 0,
+      stockSeguridad: articulo.stockSeguridad ?? 0,
+      puntoPedido: articulo.puntoPedido ?? 0,
+      desviacionEstandar: articulo.desviacionEstandar ?? 0,
+      costoAlmacenamiento: articulo.costoAlmacenamiento ?? 0,
+      demandaAnual: articulo.demandaAnual ?? 0,
+      modeloElegido: articulo.modeloElegido || '',
       });
     }
   }, [articulo]);
@@ -97,18 +94,17 @@ const validationSchema = Yup.object().shape({
         <h3 className={styles.modalHeader}>Modificar Artículo {articulo.codigoArticulo}</h3>
         <form onSubmit={handleSubmit}>
           {[
+           
             { label: 'Nombre', name: 'nombreArticulo', type: 'text' },
             { label: 'Descripción', name: 'descripcion', type: 'textarea' },
             { label: 'Stock Actual', name: 'stockReal', type: 'number' },
             { label: 'Stock de Seguridad', name: 'stockSeguridad', type: 'number' },
-            //{ label: 'Precio Unitario', name: 'precioUnitario', type: 'number', step: '0.01' },
-           // { label: 'Demora de Entrega (días)', name: 'demoraEntrega', type: 'number' },
-            //{ label: 'Costo de Pedido', name: 'costoPedido', type: 'number', step: '0.01' },
-          //  { label: 'Costo de Mantener', name: 'costoMantener', type: 'number', step: '0.01' },
+            { label: 'Punto de Pedido', name: 'puntoPedido', type: 'number' },
+            { label: 'Desviación Estándar', name: 'desviacionEstandar', type: 'number', step: '0.01' },
             { label: 'Costo de Almacenamiento', name: 'costoAlmacenamiento', type: 'number', step: '0.01' },
-           // { label: 'Lote Óptimo', name: 'loteOptimo', type: 'number' },
-           // { label: 'Inventario Máximo', name: 'inventarioMax', type: 'number' },
             { label: 'Demanda Anual', name: 'demandaAnual', type: 'number' }
+
+
           ].map(({ label, name, type, step }) => (
             <div key={name} className={styles.formGroup}>
               <label className={styles.formLabel}>{label}:</label>

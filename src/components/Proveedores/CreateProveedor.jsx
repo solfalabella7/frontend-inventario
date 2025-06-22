@@ -119,7 +119,7 @@ const CreateProveedor = ({ onSuccess }) => {
       setSubmitting(false);
     }
   };
-console.log(articuloSeleccionado)
+
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Crear Nuevo Proveedor</h2>
