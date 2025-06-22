@@ -206,14 +206,27 @@ const EditarProveedor = () => {
                     />
                   </Col>
                   <Col md={4}>
-                    <FormBs.Label>Periodo Revisión</FormBs.Label>
-                    <FormBs.Control
-                      type="number"
-                      value={a.periodoRevision}
-                      onChange={e => handleAsociacionChange(i, 'periodoRevision', e.target.value)}
-                    />
-                  </Col>
+                  {/* Obtener el modelo de inventario desde la lista de artículos */}
+                  {(() => {
+                    const articuloInfo = articulos.find(art => art.codigoArticulo === a.codigoArticulo);
+                    const esTiempoFijo = articuloInfo?.modeloInventario?.toUpperCase() === 'TIEMPO_FIJO';
 
+                    if (esTiempoFijo) {
+                      return (
+                        <>
+                          <FormBs.Label>Período Revisión</FormBs.Label>
+                          <FormBs.Control
+                            type="number"
+                            value={a.periodoRevision}
+                            onChange={e => handleAsociacionChange(i, 'periodoRevision', e.target.value)}
+                          />
+                        </>
+                      );
+                    } else {
+                      return null;
+                    }
+                  })()}
+                </Col>
                 </Row>
                 <div className="mt-3 text-end">
                   <Button variant="outline-danger" onClick={() => handleRemove(i)}>Eliminar</Button>
