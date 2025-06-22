@@ -16,38 +16,40 @@ const EditarProveedor = () => {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const cargarDatos = async () => {
-      try {
-        const [{ data: proveedorData }, { data: articulosData }] = await Promise.all([
-          axios.get(`/proveedores/${id}`),
-          axios.get('/articulos'),
-        ]);
+ useEffect(() => {
+  const cargarDatos = async () => {
+    try {
+      // Pedimos proveedor, artículos y asociaciones con DTO correcto
+      const [{ data: proveedorData }, { data: articulosData }, { data: asociacionesData }] = await Promise.all([
+        axios.get(`/proveedores/${id}`),
+        axios.get('/articulos'),
+        axios.get(`/proveedores/${id}/articulos`)
+      ]);
 
-        setProveedor(proveedorData);
-        setArticulos(articulosData);
+      setProveedor(proveedorData);
+      setArticulos(articulosData);
 
-        const asociacionesNormalizadas = (proveedorData.proveedorArticulos || []).map(a => ({
-          codigoArticulo: a.codArticulo,
-          precioUnitProveedorArticulo: a.costoUnitario,
-          demoraEntrega: a.demoraEntrega,
-          nivelDeServicio: a.nivelDeServicio,
-          costoPedido: a.costoPedido,
-          costoMantenimiento: a.costoMantenimiento,
-          esPredeterminado: a.esPredeterminado || false,
-          periodoRevision: a.periodoRevision || 0,
-        }));
+      // Completamos nombre del artículo desde lista general
+      const asociacionesConNombre = asociacionesData.map(a => {
+        const art = articulosData.find(art => art.codigoArticulo === a.codigoArticulo);
+        return {
+          ...a,
+          nombreArticulo: art?.nombreArticulo || 'Artículo desconocido'
+        };
+      });
 
-        setAsociaciones(asociacionesNormalizadas);
-      } catch (err) {
-        setError('No se pudieron cargar los datos.');
-      } finally {
-        setLoading(false);
-      }
-    };
+      setAsociaciones(asociacionesConNombre);
+    } catch (err) {
+      console.error(err);
+      setError('No se pudieron cargar los datos.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    cargarDatos();
-  }, [id]);
+  cargarDatos();
+}, [id]);
+
 
   const validationSchema = Yup.object().shape({
     nombreProveedor: Yup.string().required('El nombre es obligatorio'),
@@ -140,20 +142,23 @@ const EditarProveedor = () => {
                 <Row>
                   <Col md={6}>
                     <FormBs.Label>Artículo</FormBs.Label>
-                    <FormBs.Select
-                      value={a.codigoArticulo}
-                      onChange={(e) =>
-                        handleAsociacionChange(i, 'codigoArticulo', Number(e.target.value) || '')
-                      }
-                    >
+                   
 
-                      <option value="">Seleccione un artículo</option>
-                      {articulos.map((art) => (
-                        <option key={art.codigoArticulo} value={art.codigoArticulo}>
-                          {art.nombreArticulo}
-                        </option>
-                      ))}
-                    </FormBs.Select>
+                    {/* Campo oculto para enviar el código del artículo */}
+                    <input
+                      type="hidden"
+                      name={`asociaciones[${i}].codigoArticulo`}
+                      value={a.codigoArticulo}
+                    />
+
+                    {/* Mostrar el nombre del artículo en modo solo lectura */}
+                    <FormBs.Control
+                      plaintext
+                      readOnly
+                      value={a.nombreArticulo || 'Artículo no encontrado'}
+                      className="bg-light"
+                    />
+
                   </Col>
                   <Col md={6}>
                     <FormBs.Label>Precio</FormBs.Label>
