@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../service/axios.config';
 import styles from './ModificarArticulo.module.css';
+import * as Yup from 'yup'; 
 
 const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
   const [formData, setFormData] = useState({
@@ -21,6 +22,18 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+const validationSchema = Yup.object().shape({
+   stockReal: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    stockSeguridad: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    precioUnitario:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+     demoraEntrega:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+     costoPedido:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+     costoMantener:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    costoAlmacenamiento:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+
+
+});
 
   useEffect(() => {
     if (articulo) {
