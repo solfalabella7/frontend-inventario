@@ -5,94 +5,43 @@ import * as Yup from 'yup';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
-  const [formData, setFormData] = useState({
-    nombreArticulo: '',
-    descripcion: '',
-    stockReal: '',
-    stockSeguridad: 0,
-    precioUnitario: 0,
-    demoraEntrega: 0,
-    costoPedido: 0,
-    costoMantener: 0,
-    costoAlmacenamiento: 0,
-    loteOptimo: 0,
-    inventarioMax: 0,
-    modeloElegido: '',
-    demandaAnual: 0,
-  });
+  const [error, setError] = useState(null);
 
   const validationSchema = Yup.object().shape({
     stockReal: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     stockSeguridad: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    //precioUnitario:Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    demoraEntrega: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    costoPedido: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    costoMantener: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    costoAlmacenamiento: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     puntoPedido: Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
     desviacionEstandar: Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
+    costoAlmacenamiento: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    demandaAnual: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
+    modeloElegido: Yup.string().required('Requerido'),
   });
 
-  useEffect(() => {
-    if (articulo) {
-      console.log("Articulo recibido en ModificarArticulo:", articulo);
-      setFormData({
-        nombreArticulo: articulo.nombreArticulo || '',
-        descripcion: articulo.descripcion || '',
-        stockReal: articulo.stockReal ?? 0,
-        stockSeguridad: articulo.stockSeguridad ?? 0,
-        puntoPedido: articulo.puntoPedido ?? 0,
-        desviacionEstandar: articulo.desviacionEstandar ?? 0,
-        costoAlmacenamiento: articulo.costoAlmacenamiento ?? 0,
-        demandaAnual: articulo.demandaAnual ?? 0,
-        modeloElegido: articulo.modeloElegido || '',
-      });
-    }
-  }, [articulo]);
+  if (!articulo) return null; // Previene errores mientras carga
 
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]:
-        value === ''  // Si está vacío, guardo vacío para que no ponga 0
-          ? ''
-          : isNaN(value) || name === 'nombreArticulo' || name === 'descripcion' || name === 'modeloElegido'
-            ? value
-            : Number(value),
-    }));
-  };
-
-  console.log("Enviando PUT para:", articulo);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      if (!articulo?.codigoArticulo) {
-        throw new Error('Falta el código del artículo');
-      }
-
-      console.log("Datos enviados al backend:", formData);
-      await axios.put(`/articulos/${articulo.codigoArticulo}`, formData);
-      onUpdateSuccess();
-    } catch (err) {
-      console.error(err);
-      setError('Error al modificar el artículo.');
-    } finally {
-      setLoading(false);
-    }
+  const initialValues = {
+    nombreArticulo: articulo.nombreArticulo || '',
+    descripcion: articulo.descripcion || '',
+    stockReal: articulo.stockReal ?? 0,
+    stockSeguridad: articulo.stockSeguridad ?? 0,
+    puntoPedido: articulo.puntoPedido ?? 0,
+    desviacionEstandar: articulo.desviacionEstandar ?? 0,
+    costoAlmacenamiento: articulo.costoAlmacenamiento ?? 0,
+    demandaAnual: articulo.demandaAnual ?? 0,
+    modeloElegido: articulo.modeloElegido || '',
   };
 
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
         <h3 className={styles.modalHeader}>Modificar Artículo {articulo.codigoArticulo}</h3>
+
+        {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+
         <Formik
-          initialValues={formData}
+          initialValues={initialValues}
           validationSchema={validationSchema}
+          enableReinitialize
           onSubmit={async (values, { setSubmitting }) => {
             try {
               await axios.put(`/articulos/${articulo.codigoArticulo}`, values);
@@ -104,9 +53,8 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
               setSubmitting(false);
             }
           }}
-          enableReinitialize
         >
-          {({ isSubmitting, handleChange, values }) => (
+          {({ isSubmitting }) => (
             <Form>
               {[
                 { label: 'Nombre', name: 'nombreArticulo', type: 'text' },
@@ -144,14 +92,8 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
               ))}
 
               <div className={styles.formGroup}>
-                <label htmlFor="modeloElegido" className={styles.formLabel}>
-                  Modelo Inventario:
-                </label>
-                <Field
-                  as="select"
-                  name="modeloElegido"
-                  className={styles.formInput}
-                >
+                <label className={styles.formLabel}>Modelo Inventario:</label>
+                <Field as="select" name="modeloElegido" className={styles.formInput}>
                   <option value="">Seleccione un modelo</option>
                   <option value="TIEMPO_FIJO">TIEMPO_FIJO</option>
                   <option value="LOTE_FIJO">LOTE_FIJO</option>
@@ -183,7 +125,6 @@ const ModificarArticulo = ({ articulo, onCancel, onUpdateSuccess }) => {
             </Form>
           )}
         </Formik>
-
       </div>
     </div>
   );
