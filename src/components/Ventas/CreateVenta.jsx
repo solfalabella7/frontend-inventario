@@ -20,33 +20,6 @@ const CreateVenta = () => {
         });
     }, []);
 
-    /*const agregarArticulo = () => {
-        if (!articuloSeleccionado || cantidad <= 0) return;
-
-        const yaAgregado = listaArticulos.find(
-            (item) => item.codigo === parseInt(articuloSeleccionado)
-        );
-        if (yaAgregado) {
-            setError("Este artículo ya fue agregado.");
-            return;
-        }
-
-        const articulo = articulos.find(
-            (a) => a.codigoArticulo === parseInt(articuloSeleccionado)
-        );
-
-        setListaArticulos((prev) => [
-            ...prev,
-            {
-                codigo: articulo.codigoArticulo,
-                nombre: articulo.nombreArticulo,
-                cantidad: parseInt(cantidad),
-            },
-        ]);
-        setArticuloSeleccionado("");
-        setCantidad(1);
-        setError(null);
-    };*/
 
     const agregarArticulo = () => {
         if (!articuloSeleccionado) {

@@ -195,26 +195,28 @@ const ListaProveedores = () => {
                                 <Table striped bordered hover>
                                     <thead>
                                         <tr>
-                                            <th>#</th>
                                             <th>Código</th>
+                                            <th>Nombre</th>
                                             <th>Precio</th>
                                             <th>Demora</th>
                                             <th>Costo Pedido</th>
                                             <th>Costo Mantenimiento</th>
                                             <th>Lote Óptimo</th>
+                                            <th>Inventario Máximo</th>
                                             <th>Nivel Servicio (%)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {articulosProveedor.map((articulo, index) => (
                                             <tr key={articulo.codigoArticulo || index}>
-                                                <td>{index + 1}</td>
                                                 <td>{articulo.codigoArticulo}</td>
+                                                <td>{articulo.nombreArticulo}</td>
                                                 <td>${articulo.precioUnitProveedorArticulo}</td>
                                                 <td>{articulo.demoraEntrega} días</td>
                                                 <td>${articulo.costoPedido}</td>
                                                 <td>${articulo.costoMantenimiento}</td>
                                                 <td>{articulo.loteOptimo}</td>
+                                                <td>{articulo.inventarioMaximo}</td>
                                                 <td>{articulo.nivelDeServicio}%</td>
                                             </tr>
                                         ))}

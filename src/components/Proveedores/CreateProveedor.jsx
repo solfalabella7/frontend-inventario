@@ -23,7 +23,6 @@ const CreateProveedor = ({ onSuccess }) => {
     costoMantenimiento: '',
    // loteOptimo: '',
     periodoRevision: '',
-    inventarioMaximo: '',
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -77,9 +76,6 @@ const CreateProveedor = ({ onSuccess }) => {
     periodoRevision: Yup.number()
       .min(0, 'El período no puede ser negativo')
       .nullable(),
-    inventarioMaximo: Yup.number()
-      .min(0, 'El inventario no puede ser negativo')
-      .nullable(),
   });
 
   // Convertimos ambos a string para asegurar que la comparación funcione
@@ -115,9 +111,6 @@ const CreateProveedor = ({ onSuccess }) => {
     if (currentAsociacion.periodoRevision < 0) {
       errors.periodoRevision = 'El período no puede ser negativo';
     }
-    if (currentAsociacion.inventarioMaximo < 0) {
-      errors.inventarioMaximo = 'El inventario máximo no puede ser negativo';
-    }
 
     if (Object.keys(errors).length > 0) {
       setAsociacionErrors(errors);
@@ -135,7 +128,6 @@ const CreateProveedor = ({ onSuccess }) => {
       costoMantenimiento: '',
      // loteOptimo: '',
       periodoRevision: '',
-      inventarioMaximo: '',
     });
     setAsociacionErrors({});
     setError(null);
@@ -361,25 +353,6 @@ const CreateProveedor = ({ onSuccess }) => {
                   </FormBs.Group>
                 )}
 
-              <FormBs.Group className="mb-3">
-                <FormBs.Label>Inventario Máximo</FormBs.Label>
-                <FormBs.Control
-                  type="number"
-                  min="0"
-                  value={currentAsociacion.inventarioMaximo}
-                  onChange={(e) =>
-                    setCurrentAsociacion({
-                      ...currentAsociacion,
-                      inventarioMaximo: e.target.value !== '' ? parseInt(e.target.value) : '',
-                    })
-                  }
-                  isInvalid={!!asociacionErrors.inventarioMaximo}
-                />
-                {asociacionErrors.inventarioMaximo && (
-                  <FormBs.Text className="text-danger">{asociacionErrors.inventarioMaximo}</FormBs.Text>
-                )}
-              </FormBs.Group>
-
               <Button
                 variant="primary"
                 onClick={handleAddAsociacion}
@@ -404,7 +377,6 @@ const CreateProveedor = ({ onSuccess }) => {
                           <div>Demora: {asoc.demoraEntrega} días</div>
                           <div>Nivel de Servicio: {asoc.nivelDeServicio}%</div>
                           <div>Período de Revisión: {asoc.periodoRevision} días</div>
-                          <div>Inventario Máximo: {asoc.inventarioMaximo}</div>
                         </div>
                         <Button
                           variant="outline-danger"
