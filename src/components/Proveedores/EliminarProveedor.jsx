@@ -8,35 +8,37 @@ const EliminarProveedor = ({ codigoProveedor, nombreProveedor, onDeleteSuccess, 
     const [error, setError] = useState(null);
     const [info, setInfo] = useState(null);
 
-    const handleEliminar = async () => {
-        setLoading(true);
-        setError(null);
-        setInfo(null);
-        
-        try {
-            await axios.delete(`/proveedores/${codigoProveedor}`);
-            onDeleteSuccess();
-            setShowModal(false);
-        } catch (err) {
-            console.error('Error al eliminar proveedor:', err);
+    const handleEliminar = async (codigoProveedor) => {
+  try {
+    await axios.delete(`/proveedores/${codigoProveedor}`);
+    alert('Proveedor eliminado con éxito');
+    setShowModal(false);
+    onDeleteSuccess?.();
+  } catch (error) {
+    const status = error?.response?.status;
+    const mensaje = error?.response?.data?.message;
 
-            const msg = err.response?.data;
+    console.log('Mensaje de error recibido del backend:', mensaje);
+
+    if (status === 409) {
+      if (mensaje?.toLowerCase().includes("órdenes")) {
+        alert("No se puede eliminar el proveedor porque tiene órdenes de compra asociadas.");
+      } else if (mensaje?.toLowerCase().includes("predeterminado")) {
+        alert("No se puede eliminar el proveedor porque es predeterminado en algún artículo.");
+      } else {
+        alert("No se puede eliminar el proveedor porque está en uso.");
+      }
+    } else {
+      alert(`Error al eliminar proveedor: ${status ?? 'desconocido'}`);
+    }
+
+    console.error('Detalles del error:', error);
+  }
+};
 
 
-            if (msg?.includes('predeterminado')) {
-                setError('No se puede eliminar: proveedor es predeterminado en un artículo.');
-                setInfo('Debes cambiar el proveedor predeterminado del artículo antes de eliminarlo.');
-            } else if (msg?.includes('Órdenes de Compra')) {
-                setError('No se puede eliminar: el proveedor tiene órdenes pendientes o confirmadas.');
-                setInfo('Debes completar o cancelar esas órdenes antes de darlo de baja.');
-            } else {
-                setError(msg || 'No se pudo eliminar el proveedor');
-            }
-            
-        } finally {
-            setLoading(false);
-        }
-    };
+
+
 
     return (
         <>
@@ -81,9 +83,10 @@ const EliminarProveedor = ({ codigoProveedor, nombreProveedor, onDeleteSuccess, 
                         Cancelar
                     </Button>
                     <Button 
-                        variant="danger" 
-                        onClick={handleEliminar}
-                        disabled={loading || error}
+
+    variant="danger" 
+    onClick={() => handleEliminar(codigoProveedor)}
+    disabled={loading || error}
                     >
                         {loading ? (
                             <>
