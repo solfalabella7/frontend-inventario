@@ -167,10 +167,17 @@ const ListaOrdenesCompra = () => {
 
 
   return (
-    <div className="container mt-4">
-      <h2>Órdenes de Compra</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
+      <div className="container mt-4">
+    <h2>Órdenes de Compra</h2>
 
+    {error && <div className="alert alert-danger">{error}</div>}
+
+    {/* Mostrar mensaje si no hay órdenes */}
+    {!loading && ordenes.length === 0 ? (
+      <div className="alert alert-info mt-4">
+        No hay órdenes de compra registradas. Cuando se genere una orden, aparecerá en esta lista.
+      </div>
+    ) : (
       <Table striped bordered hover>
         <thead className="table-dark">
           <tr>
@@ -204,7 +211,6 @@ const ListaOrdenesCompra = () => {
                       Ver Detalle
                     </Button>
 
-                    {/* Botones según el estado */}
                     {oc.estadoOC === 'PENDIENTE' && (
                       <>
                         <Button
@@ -215,45 +221,31 @@ const ListaOrdenesCompra = () => {
                         >
                           Modificar
                         </Button>
-
                         <CancelarOC
                           nroOrdenCompra={oc.nroOrdenCompra}
                           onDeleteSuccess={cargarOrdenes}
                         />
-
                         <EnviarOC
                           nroOrdenCompra={oc.nroOrdenCompra}
                           onDeleteSuccess={cargarOrdenes}
                         />
-
                       </>
                     )}
 
                     {oc.estadoOC === 'ENVIADA' && (
-                      <>
-                      {/*<Button
-                        variant="success"
-                        size="sm"
-                        onClick={() => finalizarOrden(oc.nroOrdenCompra)}
-                      >
-                        Finalizar
-                      </Button>*/}
                       <FinalizarOC
                         nroOrdenCompra={oc.nroOrdenCompra}
                         onDeleteSuccess={cargarOrdenes}
                       />
-                      </>
-
-
                     )}
                   </>
                 )}
               </td>
-
             </tr>
           ))}
         </tbody>
       </Table>
+    )}
 
       {/* Modal detalle orden de compra */}
       <Modal show={detalleVisible} onHide={cerrarDetalle}>
