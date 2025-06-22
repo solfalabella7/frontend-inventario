@@ -21,7 +21,7 @@ const CreateProveedor = ({ onSuccess }) => {
     nivelDeServicio: '',
     costoPedido: '',
     costoMantenimiento: '',
-    loteOptimo: '',
+   // loteOptimo: '',
     periodoRevision: '',
     inventarioMaximo: '',
   });
@@ -71,9 +71,9 @@ const CreateProveedor = ({ onSuccess }) => {
     costoMantenimiento: Yup.number()
       .min(0, 'El mantenimiento no puede ser negativo')
       .required('Requerido'),
-    loteOptimo: Yup.number()
-      .min(0, 'El lote no puede ser negativo')
-      .required('Requerido'),
+    //loteOptimo: Yup.number()
+    //  .min(0, 'El lote no puede ser negativo')
+    //  .required('Requerido'),
     periodoRevision: Yup.number()
       .min(0, 'El período no puede ser negativo')
       .nullable(),
@@ -103,9 +103,9 @@ const CreateProveedor = ({ onSuccess }) => {
     if (currentAsociacion.costoMantenimiento < 0) {
       errors.costoMantenimiento = 'El mantenimiento no puede ser negativo';
     }
-    if (currentAsociacion.loteOptimo < 0) {
-      errors.loteOptimo = 'El lote no puede ser negativo';
-    }
+    //if (currentAsociacion.loteOptimo < 0) {
+      //errors.loteOptimo = 'El lote no puede ser negativo';
+    //}
     if (currentAsociacion.nivelDeServicio < 0) {
       errors.nivelDeServicio = 'El nivel de servicio no puede ser negativo';
     }
@@ -133,7 +133,7 @@ const CreateProveedor = ({ onSuccess }) => {
       nivelDeServicio: '',
       costoPedido: '',
       costoMantenimiento: '',
-      loteOptimo: '',
+     // loteOptimo: '',
       periodoRevision: '',
       inventarioMaximo: '',
     });
@@ -282,7 +282,7 @@ const CreateProveedor = ({ onSuccess }) => {
                 )}
               </FormBs.Group>
 
-              <FormBs.Group className="mb-3">
+             {/* <FormBs.Group className="mb-3">
                 <FormBs.Label>Lote Óptimo</FormBs.Label>
                 <FormBs.Control
                   type="number"
@@ -298,7 +298,7 @@ const CreateProveedor = ({ onSuccess }) => {
                 {asociacionErrors.loteOptimo && (
                   <FormBs.Text className="text-danger">{asociacionErrors.loteOptimo}</FormBs.Text>
                 )}
-              </FormBs.Group>
+              </FormBs.Group> */}
 
               <FormBs.Group className="mb-3">
                 <FormBs.Label>Nivel de Servicio (%)</FormBs.Label>
