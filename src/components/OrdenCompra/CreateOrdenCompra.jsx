@@ -15,6 +15,7 @@ const CreateOrdenCompra = () => {
   const [sugerenciaCantidadPorArticulo, setSugerenciaCantidadPorArticulo] = useState({});
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [info, setInfo] = useState(null);
 
   useEffect(() => {
     axios.get('/articulos')
@@ -64,11 +65,16 @@ const CreateOrdenCompra = () => {
         </Alert>
       )}
 
-      {success && (
-        <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
-          {success}
-        </Alert>
-      )}
+{success && (
+  <Alert variant="success" onClose={() => setSuccess(null)} dismissible>
+    {success}
+  </Alert>
+)}
+  {info && (
+    <Alert variant="warning" onClose={() => setInfo(null)} dismissible>
+      {info}
+    </Alert>
+  )}
       <Formik
         initialValues={{
           nombreOC: '',
@@ -89,12 +95,17 @@ const CreateOrdenCompra = () => {
             };
 
             const res = await axios.post('/ordenCompra', payload);
+            console.log('🧾 Respuesta completa del backend:', res.data);
+
             setSuccess('✅ Orden creada exitosamente.');
             resetForm();
             setProveedorSeleccionado('');
             setArticulosPermitidos([]);
             setProveedorSugeridoPorArticulo({});
             setSugerenciaCantidadPorArticulo({});
+            if (res.data.advertencia === false) {
+  setInfo('⚠️ La orden fue creada, pero hay artículos cuya cantidad no alcanza el punto de pedido.');
+}
           } catch (error) {
             console.error('Error al crear orden:', error);
             const msg = error.response?.data;
@@ -182,6 +193,10 @@ const CreateOrdenCompra = () => {
                                     ...prev,
                                     [index]: '...' // mostrar "..." mientras carga
                                   }));
+                                  console.log("🎯 Obteniendo sugerencia cantidad con:", {
+                                    codArticulo,
+                                    codProveedor
+                                  });
 
                                   const resCant = await axios.get('/ordenCompra/sugerenciaCantidad', {
                                     params: {
