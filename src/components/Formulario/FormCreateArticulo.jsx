@@ -12,7 +12,7 @@ const FormCreateArticulo = () => {
     stockActualArticulo: '',
     stockSeguridadArticulo: '',
     demandaAnual: '',
-    puntoPedido: '',
+   // puntoPedido: '',
     modeloElegido: 'TIEMPO_FIJO',
     costoAlmacenamiento: '',
     desviacionEstandar: ''
@@ -24,7 +24,7 @@ const FormCreateArticulo = () => {
     stockActualArticulo: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     stockSeguridadArticulo: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
     demandaAnual: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
-    puntoPedido:  Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
+   // puntoPedido:  Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
     modeloElegido: Yup.string().oneOf(['TIEMPO_FIJO', 'LOTE_FIJO']).required('Modelo requerido'),
     desviacionEstandar: Yup.number().required('Requerido').moreThan(0, 'Debe ser mayor a cero'),
     costoAlmacenamiento: Yup.number().required('Requerido').min(0, 'No puede ser negativo'),
@@ -41,7 +41,7 @@ const FormCreateArticulo = () => {
             descripcion: values.descripcion,
             stockReal: parseInt(values.stockActualArticulo),
             stockSeguridad: parseInt(values.stockSeguridadArticulo),
-            puntoPedido: values.puntoPedido,
+          //  puntoPedido: values.puntoPedido,
             fechaHoraBajaArticulo: null,
             costoAlmacenamiento: parseFloat(values.costoAlmacenamiento),
             modeloElegido: values.modeloElegido,
@@ -103,12 +103,12 @@ const FormCreateArticulo = () => {
               <Field id='demandaAnual' type='number' name='demandaAnual' className='form-control field-input' />
               <ErrorMessage name="demandaAnual" component="div" className="text-danger" />
             </FormBs.Group>
-
+            {/*
             <FormBs.Group className="mb-3">
               <label htmlFor='puntoPedido'>Punto de Pedido</label>
               <Field id='puntoPedido' type='number' name='puntoPedido' className='form-control field-input' />
               <ErrorMessage name="puntoPedido" component="div" className="text-danger" />
-            </FormBs.Group>
+            </FormBs.Group>*/}
 
             <FormBs.Group className="mb-3">
               <label htmlFor='costoAlmacenamiento'>Costo de Almacenamineto</label>
