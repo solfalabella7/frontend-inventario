@@ -26,7 +26,7 @@ const ListaVentas = () => {
 
   const verDetalleVenta = async (venta) => {
     try {
-      const response = await axios.get(`/ventas/${venta.nroVenta}`);
+      const response = await axios.get(`/ventas/verDetalle/${venta.nroVenta}`);
       setVentaSeleccionada(venta);
       setDetalleVenta(response.data.articulos || []);
       setShowModal(true);
@@ -109,16 +109,17 @@ const ListaVentas = () => {
                   <th>Cantidad</th>
                 </tr>
               </thead>
-              <tbody>
-                {detalleVenta.map((art, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{art.articulo?.nombreArticulo || 'N/A'}</td>
-                    <td>{art.articulo?.codigoArticulo}</td>
-                    <td>{art.cantidadVA}</td>
-                  </tr>
-                ))}
-              </tbody>
+                <tbody>
+                  {detalleVenta.map((art, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{art.nombreArticulo || 'N/A'}</td>
+                      <td>{art.codigoArticulo}</td>
+                      <td>{art.cantidadVA}</td>
+                    </tr>
+                  ))}
+                </tbody>
+
             </Table>
           )}
         </Modal.Body>
