@@ -23,7 +23,7 @@ Link del Backend: https://github.com/MartinaLuconi/InventarioyStock.git
 
 **Tecnologías utilizadas:**
 
-  Frontend:
+  1. Frontend:
   - React 18
   - React Router DOM
   - Axios
@@ -31,10 +31,10 @@ Link del Backend: https://github.com/MartinaLuconi/InventarioyStock.git
   - Bootstrap 5 + React Bootstrap + Bootstrap Icons
   - Material UI (MUI)
 
-  Estilos:
+  2. Estilos:
   - CSS Modules / Sass
   
-  Desarrollo:
+  3. Desarrollo:
   - Vite
   - ESLint
 
@@ -45,15 +45,16 @@ Link del Backend: https://github.com/MartinaLuconi/InventarioyStock.git
 
 
 **Instalación y ejecución:**
-- Clonar el repositorio frontend:
 
-  git clone <URL_FRONTEND>
+1. Clonar el repositorio frontend:
 
-  cd <CARPETA_FRONTEND>
-- Instalar dependencias:
+- git clone solfalabella7/frontend-inventario
+- cd <CARPETA_FRONTEND>
 
-  npm install
-- Configurar conexión con el backend en axios.config.js.
-- Ejecutar en modo desarrollo:
+2. Instalar dependencias:
+- npm install
 
-  npm run dev
+3. Configurar conexión con el backend en axios.config.js.
+
+4. Ejecutar en modo desarrollo:
+- npm run dev
